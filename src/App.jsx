@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 
 const FONTS = `@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Cabinet+Grotesk:wght@300;400;500;600;700;800&display=swap');`;
 
@@ -431,7 +431,8 @@ function fmt(amount, currency) {
 }
 
 // LANDING PAGE
-function LandingPage({ onGetStarted, setLegalPage }) {
+function LandingPage({ onGetStarted }) {
+  const [legalPage, setLegalPage] = React.useState(null);
   return (
     <div>
       {/* NAV */}
@@ -915,7 +916,6 @@ function LegalModal({ page, onClose }) {
 // MAIN APP
 export default function App() {
   const [view, setView] = useState("landing");
-  const [legalPage, setLegalPage] = useState(null);
   const [docsGeneratedRaw] = useState(() => {
     try { return parseInt(localStorage.getItem("lumosdoc_docs") || "0", 10); } catch { return 0; }
   });
@@ -1055,7 +1055,7 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
     return (
       <>
         <style>{css}</style>
-        <LandingPage onGetStarted={() => setView("app")} setLegalPage={setLegalPage} />
+        <LandingPage onGetStarted={() => setView("app")} />
       </>
     );
   }
