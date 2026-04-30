@@ -475,7 +475,7 @@ function LandingPage({ onGetStarted }) {
                   <div key={i} className="trust-dot" style={{zIndex:4-i}}>{f}</div>
                 ))}
               </div>
-              <span>Trusted by freelancers worldwide · $7/mo after free trial</span>
+              <span>Trusted by freelancers worldwide · $5.99/mo after free trial</span>
             </div>
           </div>
           <div className="hero-visual">
@@ -568,15 +568,15 @@ function LandingPage({ onGetStarted }) {
       <section className="pricing-section" id="pricing">
         <div className="pricing-inner">
           <div className="section-label">Simple pricing</div>
-          <h2 className="section-title">One free document.<br />Then $7 a month.</h2>
+          <h2 className="section-title">One free document.<br />Then $5.99 a month.</h2>
           <p className="section-subtitle" style={{margin:'12px auto 0',textAlign:'center',maxWidth:420}}>No hidden fees, no per-document charges, no surprises. Cancel anytime.</p>
-          <div className="pricing-cards">
+          <div className="pricing-cards" style={{gridTemplateColumns:"1fr 1fr 1fr"}}>
             <div className="pricing-card">
               <div className="pricing-tier">Free Trial</div>
               <div className="pricing-price">$0</div>
-              <div className="pricing-period">one document, no card required</div>
+              <div className="pricing-period">one document · PDF included · no card</div>
               <div className="pricing-features">
-                {["1 invoice or contract","AI-polished language","Logo upload","PDF download","Live preview"].map((f,i) => (
+                {["1 invoice or contract","AI-polished language","Logo upload","PDF download included","Live preview"].map((f,i) => (
                   <div key={i} className="pricing-feature">
                     <div className="pricing-check">✓</div>{f}
                   </div>
@@ -585,17 +585,30 @@ function LandingPage({ onGetStarted }) {
               <button className="pricing-btn pricing-btn-free" onClick={onGetStarted}>Try free now</button>
             </div>
             <div className="pricing-card featured">
-              <div className="pricing-tier">Pro</div>
-              <div className="pricing-price">$7<sub>/mo</sub></div>
+              <div className="pricing-tier">Pro Monthly</div>
+              <div className="pricing-price">$5.99<sub>/mo</sub></div>
               <div className="pricing-period">unlimited everything · cancel anytime</div>
               <div className="pricing-features">
-                {["Unlimited invoices","Unlimited contracts","All invoice templates","All contract types","Priority support","Cancel anytime"].map((f,i) => (
+                {["Unlimited invoices","Unlimited contracts","All invoice templates","All contract types","PDF download always","Cancel anytime"].map((f,i) => (
                   <div key={i} className="pricing-feature">
                     <div className="pricing-check">✓</div>{f}
                   </div>
                 ))}
               </div>
-              <button className="pricing-btn pricing-btn-pro" onClick={()=>alert("PADDLE_CHECKOUT_URL — replace with your Paddle link")}>Get Pro — $7/mo →</button>
+              <button className="pricing-btn pricing-btn-pro" onClick={()=>alert("PADDLE_MONTHLY_URL")}>Get Pro — $5.99/mo →</button>
+            </div>
+            <div className="pricing-card featured" style={{background:"var(--ink)"}}>
+              <div className="pricing-tier" style={{color:"var(--accent)"}}>Pro Annual 🔥</div>
+              <div className="pricing-price" style={{color:"#fff"}}>$59.99<sub style={{color:"#888"}}>/yr</sub></div>
+              <div className="pricing-period" style={{color:"#888"}}>just $5/mo · save 2 months free</div>
+              <div className="pricing-features">
+                {["Everything in Monthly","2 months free","Best value","Priority support","PDF download always","Cancel anytime"].map((f,i) => (
+                  <div key={i} className="pricing-feature">
+                    <div className="pricing-check" style={{background:"rgba(45,90,61,0.3)",color:"#6fcf97"}}>✓</div>{f}
+                  </div>
+                ))}
+              </div>
+              <button className="pricing-btn" style={{background:"var(--accent)",color:"#fff"}} onClick={()=>alert("PADDLE_ANNUAL_URL")}>Get Annual — $59.99/yr →</button>
             </div>
           </div>
         </div>
@@ -625,142 +638,287 @@ function InvoicePreview({ inv, items, logo, template }) {
   const taxAmt = ((subtotal-discountAmt)*(parseFloat(inv.tax)||0))/100;
   const total = subtotal - discountAmt + taxAmt;
 
-  const templateStyles = {
-    minimal: { headerBg: 'transparent', titleColor: 'var(--ink)', accent: 'var(--ink)' },
-    professional: { headerBg: 'var(--green)', titleColor: '#fff', accent: 'var(--green)' },
-    bold: { headerBg: 'var(--ink)', titleColor: '#fff', accent: 'var(--accent)' },
+  const templates = {
+    minimal: {
+      wrapper: { fontFamily:"'Cabinet Grotesk', sans-serif", color:"#111" },
+      header: { display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:32, paddingBottom:24, borderBottom:"2px solid #111" },
+      titleStyle: { fontFamily:"'Fraunces',serif", fontSize:36, fontWeight:600, letterSpacing:"-1px", color:"#111", lineHeight:1 },
+      accentBar: null,
+      tableHeaderStyle: { borderBottom:"1px solid #111", borderTop:"1px solid #111" },
+      totalBg: "transparent",
+      totalBorder: "1px solid #111",
+    },
+    professional: {
+      wrapper: { fontFamily:"'Cabinet Grotesk', sans-serif", color:"#111" },
+      header: { display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:28, background:"#2d5a3d", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
+      titleStyle: { fontFamily:"'Fraunces',serif", fontSize:36, fontWeight:600, letterSpacing:"-1px", color:"#fff", lineHeight:1 },
+      accentBar: null,
+      tableHeaderStyle: { borderBottom:"2px solid #2d5a3d", borderTop:"2px solid #2d5a3d" },
+      totalBg: "#eef5f1",
+      totalBorder: "none",
+    },
+    bold: {
+      wrapper: { fontFamily:"'Cabinet Grotesk', sans-serif", color:"#111" },
+      header: { display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:28 },
+      titleStyle: { fontFamily:"'Fraunces',serif", fontSize:36, fontWeight:600, letterSpacing:"-1px", color:"#111", lineHeight:1 },
+      accentBar: { height:4, background:"#c8a96e", margin:"-28px -28px 28px", borderRadius:"18px 18px 0 0" },
+      tableHeaderStyle: { borderBottom:"2px solid #c8a96e", borderTop:"2px solid #c8a96e" },
+      totalBg: "#0a0a0a",
+      totalBorder: "none",
+      totalColor: "#fff",
+    },
   };
-  const ts = templateStyles[template] || templateStyles.minimal;
+
+  const t = templates[template] || templates.minimal;
+  const isProf = template === "professional";
+  const isBold = template === "bold";
 
   return (
-    <div className="inv-preview">
-      <div className="inv-header" style={ts.headerBg !== 'transparent' ? {background: ts.headerBg, margin: '-28px -28px 24px', padding: '24px 28px', borderRadius: '18px 18px 0 0'} : {}}>
+    <div style={t.wrapper}>
+      {t.accentBar && <div style={t.accentBar} />}
+      <div style={t.header}>
         <div>
           {logo
-            ? <img src={logo} className="inv-logo-img" alt="logo" />
-            : <div className="inv-logo-name" style={{color: ts.headerBg !== 'transparent' ? '#fff' : 'var(--green)'}}>{inv.fromName || "Your Business"}</div>
+            ? <img src={logo} style={{maxHeight:48, maxWidth:140, objectFit:"contain", marginBottom:8}} alt="logo" />
+            : <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:600, color: isProf?"#fff":"#2d5a3d", marginBottom:4}}>{inv.fromName||"Your Business"}</div>
           }
-          <div style={{fontSize:12, color: ts.headerBg !== 'transparent' ? 'rgba(255,255,255,0.7)' : 'var(--ink4)', marginTop:4, lineHeight:1.7}}>
+          <div style={{fontSize:12, color: isProf?"rgba(255,255,255,0.7)":"#888", lineHeight:1.8, marginTop:4}}>
             {inv.fromEmail}{inv.fromAddress && <><br/>{inv.fromAddress}</>}
           </div>
         </div>
-        <div className="inv-right">
-          <div className="inv-title" style={{color: ts.titleColor}}>INVOICE</div>
-          <div className="inv-num" style={{color: ts.headerBg !== 'transparent' ? 'rgba(255,255,255,0.6)' : 'var(--ink4)'}}>#{inv.invoiceNumber}</div>
-          <div className="inv-dates" style={{color: ts.headerBg !== 'transparent' ? 'rgba(255,255,255,0.7)' : 'var(--ink3)'}}>
-            Issued: {inv.issueDate}{inv.dueDate && <><br/>Due: {inv.dueDate}</>}
+        <div style={{textAlign:"right"}}>
+          <div style={t.titleStyle}>INVOICE</div>
+          <div style={{fontSize:13, color: isProf?"rgba(255,255,255,0.6)":"#aaa", marginTop:4}}>No. {inv.invoiceNumber}</div>
+          <div style={{fontSize:12, color: isProf?"rgba(255,255,255,0.7)":"#888", marginTop:6, lineHeight:1.8}}>
+            {inv.issueDate && <div>Issued: {inv.issueDate}</div>}
+            {inv.dueDate && <div>Due: {inv.dueDate}</div>}
           </div>
         </div>
       </div>
-      <div className="inv-parties">
+
+      {/* Billed to / from section */}
+      <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, marginBottom:28}}>
         <div>
-          <div className="inv-party-label">From</div>
-          <div className="inv-party-name">{inv.fromName||"—"}</div>
-          <div className="inv-party-sub">{inv.fromEmail}<br/>{inv.fromAddress}</div>
+          <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#aaa", marginBottom:6}}>From</div>
+          <div style={{fontSize:14, fontWeight:600, color:"#111", marginBottom:2}}>{inv.fromName||"—"}</div>
+          <div style={{fontSize:12, color:"#666", lineHeight:1.7}}>{inv.fromEmail}{inv.fromAddress && <><br/>{inv.fromAddress}</>}</div>
         </div>
         <div>
-          <div className="inv-party-label">Bill To</div>
-          <div className="inv-party-name">{inv.toName||"—"}</div>
-          <div className="inv-party-sub">{inv.toEmail}<br/>{inv.toAddress}</div>
+          <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#aaa", marginBottom:6}}>Billed To</div>
+          <div style={{fontSize:14, fontWeight:600, color:"#111", marginBottom:2}}>{inv.toName||"—"}</div>
+          <div style={{fontSize:12, color:"#666", lineHeight:1.7}}>{inv.toEmail}{inv.toAddress && <><br/>{inv.toAddress}</>}</div>
         </div>
       </div>
-      <table className="inv-table">
+
+      {/* Line items table */}
+      <table style={{width:"100%", borderCollapse:"collapse", marginBottom:16}}>
         <thead>
-          <tr>
-            <th>Description</th>
-            <th style={{textAlign:'center'}}>Qty</th>
-            <th className="r">Rate</th>
-            <th className="r">Amount</th>
+          <tr style={t.tableHeaderStyle}>
+            <th style={{textAlign:"left", fontSize:11, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em", color:"#888", padding:"10px 0", width:"50%"}}>Item</th>
+            <th style={{textAlign:"center", fontSize:11, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em", color:"#888", padding:"10px 8px"}}>Qty</th>
+            <th style={{textAlign:"right", fontSize:11, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em", color:"#888", padding:"10px 8px"}}>Unit Price</th>
+            <th style={{textAlign:"right", fontSize:11, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em", color:"#888", padding:"10px 0"}}>Total</th>
           </tr>
         </thead>
         <tbody>
           {items.map((it,i) => (
-            <tr key={i}>
-              <td>{it.desc||"—"}</td>
-              <td style={{textAlign:'center'}}>{it.qty}</td>
-              <td className="r">{fmt(it.rate, inv.currency)}</td>
-              <td className="r">{fmt((parseFloat(it.qty)||0)*(parseFloat(it.rate)||0), inv.currency)}</td>
+            <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
+              <td style={{padding:"11px 0", fontSize:13, color:"#333"}}>{it.desc||"—"}</td>
+              <td style={{padding:"11px 8px", fontSize:13, color:"#666", textAlign:"center"}}>{it.qty}</td>
+              <td style={{padding:"11px 8px", fontSize:13, color:"#666", textAlign:"right"}}>{fmt(it.rate, inv.currency)}</td>
+              <td style={{padding:"11px 0", fontSize:13, fontWeight:600, color:"#111", textAlign:"right"}}>{fmt((parseFloat(it.qty)||0)*(parseFloat(it.rate)||0), inv.currency)}</td>
             </tr>
           ))}
         </tbody>
       </table>
-      <div className="inv-totals">
-        <div className="inv-total-row"><span>Subtotal</span><span>{fmt(subtotal, inv.currency)}</span></div>
-        {discountAmt > 0 && <div className="inv-total-row"><span>Discount</span><span>−{fmt(discountAmt, inv.currency)}</span></div>}
-        {taxAmt > 0 && <div className="inv-total-row"><span>Tax ({inv.tax}%)</span><span>{fmt(taxAmt, inv.currency)}</span></div>}
-        <div className="inv-grand"><span>Total Due</span><span>{fmt(total, inv.currency)}</span></div>
+
+      {/* Totals */}
+      <div style={{display:"flex", justifyContent:"flex-end", marginBottom:24}}>
+        <div style={{width:220}}>
+          {discountAmt > 0 && (
+            <div style={{display:"flex", justifyContent:"space-between", fontSize:13, color:"#888", padding:"4px 0"}}>
+              <span>Discount</span><span>−{fmt(discountAmt, inv.currency)}</span>
+            </div>
+          )}
+          {taxAmt > 0 && (
+            <div style={{display:"flex", justifyContent:"space-between", fontSize:13, color:"#888", padding:"4px 0"}}>
+              <span>Tax ({inv.tax}%)</span><span>{fmt(taxAmt, inv.currency)}</span>
+            </div>
+          )}
+          <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", background:t.totalBg, border:t.totalBorder, borderRadius:t.totalBg!=="transparent"?10:0, padding: t.totalBg!=="transparent"?"12px 14px":"10px 0 0", marginTop:8, borderTop: t.totalBg==="transparent"?"2px solid #111":"none"}}>
+            <span style={{fontFamily:"'Fraunces',serif", fontSize:14, fontWeight:600, color: isBold?"#fff":"#111"}}>Total</span>
+            <span style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:600, color: isBold?"#fff":"#111"}}>{fmt(total, inv.currency)}</span>
+          </div>
+        </div>
       </div>
+
+      {/* Notes */}
       {(inv.notes || inv.additionalInfo) && (
-        <div className="inv-notes">
-          {inv.notes && <><strong>Notes</strong>{inv.notes}</>}
-          {inv.additionalInfo && <div style={{marginTop:8}}><strong>Additional Info</strong>{inv.additionalInfo}</div>}
+        <div style={{paddingTop:16, borderTop:"1px solid #f0f0f0", marginTop:8}}>
+          {inv.notes && (
+            <div style={{marginBottom:8}}>
+              <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#aaa", marginBottom:4}}>Notes</div>
+              <div style={{fontSize:12, color:"#666", lineHeight:1.7}}>{inv.notes}</div>
+            </div>
+          )}
+          {inv.additionalInfo && (
+            <div>
+              <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#aaa", marginBottom:4}}>Additional Info</div>
+              <div style={{fontSize:12, color:"#666", lineHeight:1.7}}>{inv.additionalInfo}</div>
+            </div>
+          )}
         </div>
       )}
-      <div className="inv-footer-txt">Generated with Lumosdoc · lumosdoc.com</div>
+
+      {/* Payment terms */}
+      {inv.paymentTerms && (
+        <div style={{marginTop:16, paddingTop:16, borderTop:"1px solid #f0f0f0", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+          <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#aaa"}}>Payment Terms</div>
+          <div style={{fontSize:12, color:"#333", fontWeight:500}}>{inv.paymentTerms}</div>
+        </div>
+      )}
+
+      <div style={{marginTop:24, textAlign:"center", fontSize:11, color:"#ddd"}}>Generated with Lumosdoc · lumosdoc.com</div>
     </div>
   );
 }
 
 // CONTRACT PREVIEW
-function ContractPreview({ con, clauses, logo }) {
+function ContractPreview({ con, clauses, logo, template, bgColor }) {
+  const clauseEntries = Object.entries({
+    "Scope of Work": clauses.scope,
+    "Deliverables": clauses.deliverables,
+    "Payment": clauses.payment,
+    "Revisions": clauses.revisions,
+    "Ownership": clauses.ownership,
+    "Confidentiality": clauses.confidentiality,
+    "Termination": clauses.termination,
+    "Disputes": clauses.disputes,
+    ...(con.additionalInfo ? {"Additional Terms": con.additionalInfo} : {}),
+  }).filter(([,v]) => v);
+
+  const bg = bgColor || "#ffffff";
+  const isLight = bg === "#ffffff";
+
+  const templates = {
+    minimal: {
+      headerStyle: { borderBottom:"2px solid #111", paddingBottom:20, marginBottom:24 },
+      titleColor: "#111",
+      numColor: "#111",
+      clauseTitleColor: "#111",
+      sigLineColor: "#111",
+      partyBg: bg === "#ffffff" ? "#f9f9f9" : "rgba(0,0,0,0.04)",
+      dividerColor: "#e8e8e8",
+    },
+    professional: {
+      headerStyle: { background:"#2d5a3d", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
+      titleColor: "#fff",
+      numColor: "#2d5a3d",
+      clauseTitleColor: "#2d5a3d",
+      sigLineColor: "#2d5a3d",
+      partyBg: "#eef5f1",
+      dividerColor: "#e0ede5",
+    },
+    bold: {
+      headerStyle: { background:"#0a0a0a", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
+      titleColor: "#fff",
+      numColor: "#c8a96e",
+      clauseTitleColor: "#111",
+      sigLineColor: "#c8a96e",
+      partyBg: "#faf6ee",
+      dividerColor: "#f0ebe0",
+    },
+  };
+
+  const t = templates[template||"minimal"];
+  const isColorHeader = template === "professional" || template === "bold";
+
   return (
-    <div style={{fontFamily:"'Cabinet Grotesk', sans-serif", fontSize:13}}>
-      <div className="con-header">
-        {logo && <img src={logo} className="con-logo-img" alt="logo" />}
-        <div className="con-title">{con.type}</div>
-        <div className="con-sub">Effective {con.startDate}{con.endDate ? ` – ${con.endDate}` : ""}</div>
+    <div style={{fontFamily:"'Cabinet Grotesk', sans-serif", color:"#111", fontSize:13, background:bg, padding: bg !== "#ffffff" ? "4px" : 0, borderRadius: bg !== "#ffffff" ? 8 : 0}}>
+
+      {/* HEADER */}
+      <div style={t.headerStyle}>
+        <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
+          <div>
+            {logo && <img src={logo} style={{maxHeight:40, maxWidth:120, objectFit:"contain", marginBottom:8, display:"block", filter: isColorHeader?"brightness(0) invert(1)":"none"}} alt="logo" />}
+            <div style={{fontFamily:"'Fraunces',serif", fontSize:18, fontWeight:600, color: t.titleColor, letterSpacing:"-0.3px"}}>{con.type}</div>
+            <div style={{fontSize:12, color: isColorHeader?"rgba(255,255,255,0.6)":"#aaa", marginTop:3}}>
+              Effective {con.startDate}{con.endDate ? ` – ${con.endDate}` : ""}
+            </div>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color: isColorHeader?"rgba(255,255,255,0.5)":"#bbb", marginBottom:4}}>Agreement Between</div>
+            <div style={{fontSize:13, fontWeight:600, color: t.titleColor}}>{con.freelancerName||"Freelancer"}</div>
+            <div style={{fontSize:12, color: isColorHeader?"rgba(255,255,255,0.6)":"#aaa"}}>and</div>
+            <div style={{fontSize:13, fontWeight:600, color: t.titleColor}}>{con.clientName||"Client"}</div>
+          </div>
+        </div>
       </div>
-      <div className="con-parties">
-        <div>
-          <div className="con-party-label">Freelancer</div>
-          <div className="con-party-name">{con.freelancerName||"—"}</div>
-          <div className="con-party-sub">{con.freelancerEmail}<br/>{con.freelancerAddress}</div>
-        </div>
-        <div>
-          <div className="con-party-label">Client</div>
-          <div className="con-party-name">{con.clientName||"—"}</div>
-          <div className="con-party-sub">{con.clientEmail}<br/>{con.clientAddress}</div>
-        </div>
+
+      {/* PARTIES */}
+      <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:24}}>
+        {[
+          { label:"Freelancer", name: con.freelancerName, email: con.freelancerEmail, address: con.freelancerAddress },
+          { label:"Client", name: con.clientName, email: con.clientEmail, address: con.clientAddress },
+        ].map((p,i) => (
+          <div key={i} style={{background:t.partyBg, borderRadius:10, padding:"12px 14px"}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#aaa", marginBottom:5}}>{p.label}</div>
+            <div style={{fontSize:13, fontWeight:600, color:"#111", marginBottom:2}}>{p.name||"—"}</div>
+            <div style={{fontSize:12, color:"#666", lineHeight:1.6}}>{p.email}{p.address && <><br/>{p.address}</>}</div>
+          </div>
+        ))}
       </div>
-      {Object.entries({
-        "Scope of Work": clauses.scope,
-        "Deliverables": clauses.deliverables,
-        "Payment": clauses.payment,
-        "Revisions": clauses.revisions,
-        "Ownership": clauses.ownership,
-        "Confidentiality": clauses.confidentiality,
-        "Termination": clauses.termination,
-        "Disputes": clauses.disputes,
-      }).map(([title, text], i) => text ? (
-        <div className="clause" key={i}>
-          <div className="clause-num">{i+1}.</div>
-          <div className="clause-title">{title}</div>
-          <div className="clause-body">{text}</div>
-        </div>
-      ) : null)}
-      {con.additionalInfo && (
-        <div className="clause">
-          <div className="clause-num">9.</div>
-          <div className="clause-title">Additional Terms</div>
-          <div className="clause-body">{con.additionalInfo}</div>
+
+      {/* PAYMENT SUMMARY PILL */}
+      {con.paymentAmount && (
+        <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", background:t.partyBg, borderRadius:10, padding:"10px 16px", marginBottom:24, borderLeft:`3px solid ${t.numColor}`}}>
+          <div style={{fontSize:12, color:"#888"}}>Project Value</div>
+          <div style={{fontFamily:"'Fraunces',serif", fontSize:18, fontWeight:600, color:"#111"}}>
+            {con.paymentCurrency?.split(" ")[1]||"$"}{con.paymentAmount}
+            <span style={{fontSize:12, fontWeight:400, color:"#aaa", marginLeft:6}}>{con.paymentSchedule}</span>
+          </div>
         </div>
       )}
-      <div className="sigs">
-        <div>
-          <div className="sig-line"/>
-          <div className="sig-label">Freelancer Signature</div>
-          <div className="sig-name">{con.freelancerName||"_______________"}</div>
-          <div className="sig-label" style={{marginTop:4}}>Date: ___________</div>
-        </div>
-        <div>
-          <div className="sig-line"/>
-          <div className="sig-label">Client Signature</div>
-          <div className="sig-name">{con.clientName||"_______________"}</div>
-          <div className="sig-label" style={{marginTop:4}}>Date: ___________</div>
+
+      {/* CLAUSES */}
+      <div style={{display:"flex", flexDirection:"column", gap:0}}>
+        {clauseEntries.map(([title, text], i) => (
+          <div key={i} style={{padding:"14px 0", borderBottom:`1px solid ${t.dividerColor}`, display:"flex", gap:14}}>
+            <div style={{fontSize:11, fontWeight:700, color:t.numColor, minWidth:20, paddingTop:1}}>{String(i+1).padStart(2,"0")}</div>
+            <div style={{flex:1}}>
+              <div style={{fontSize:13, fontWeight:600, color:t.clauseTitleColor, marginBottom:5, letterSpacing:"-0.1px"}}>{title}</div>
+              <div style={{fontSize:12, color:"#555", lineHeight:1.75}}>{text}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* SIGNATURES */}
+      <div style={{marginTop:32, paddingTop:20, borderTop:`2px solid ${t.sigLineColor}`}}>
+        <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#aaa", marginBottom:20, textAlign:"center"}}>Agreed and Signed</div>
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:32}}>
+          {[
+            { label:"Freelancer", name: con.freelancerName },
+            { label:"Client", name: con.clientName },
+          ].map((s,i) => (
+            <div key={i}>
+              <div style={{height:48, borderBottom:`1.5px solid ${t.sigLineColor}`, marginBottom:8, position:"relative"}}>
+                <div style={{position:"absolute", bottom:8, left:0, fontFamily:"'Fraunces',serif", fontSize:14, color:"#ccc", fontStyle:"italic"}}>Sign here</div>
+              </div>
+              <div style={{fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#aaa", marginBottom:3}}>{s.label}</div>
+              <div style={{fontSize:13, fontWeight:500, color:"#333"}}>{s.name||"_______________"}</div>
+              <div style={{fontSize:12, color:"#aaa", marginTop:4}}>Date: ___________</div>
+            </div>
+          ))}
         </div>
       </div>
-      <div className="disclaimer">⚠️ AI-generated document for reference only. Not legal advice. Review with a qualified lawyer before signing.</div>
-      <div className="inv-footer-txt" style={{marginTop:16}}>Generated with Lumosdoc · lumosdoc.com</div>
+
+      {/* DISCLAIMER */}
+      <div style={{marginTop:20, padding:"10px 14px", background:"#fffbeb", borderLeft:"3px solid #f59e0b", borderRadius:"0 6px 6px 0", fontSize:11, color:"#92400e", lineHeight:1.5}}>
+        AI-generated document for reference only. Not legal advice. Review with a qualified lawyer before signing.
+      </div>
+
+      <div style={{marginTop:16, textAlign:"center", fontSize:11, color:"#ddd"}}>Generated with Lumosdoc · lumosdoc.com</div>
     </div>
   );
 }
@@ -846,7 +1004,7 @@ function LegalModal({ page, onClose }) {
           </div>
           <div className="legal-section">
             <h3>5. Payments and Refunds</h3>
-            <p>Lumosdoc Pro is billed at $7 per month. You may cancel at any time and will retain access until the end of your current billing period. We do not offer refunds for partial months. All payments are processed by Paddle and are subject to their terms of service.</p>
+            <p>Lumosdoc Pro is billed at $5.99 per month (monthly) or $59.99 per year (save 2 months). You may cancel at any time and will retain access until the end of your current billing period. We do not offer refunds for partial months. All payments are processed by Paddle and are subject to their terms of service.</p>
           </div>
           <div className="legal-section">
             <h3>6. Intellectual Property</h3>
@@ -943,6 +1101,8 @@ export default function App() {
 
   // Contract state
   const [conLogo, setConLogo] = useState(null);
+  const [conTemplate, setConTemplate] = useState("minimal");
+  const [conBgColor, setConBgColor] = useState("#ffffff");
   const [con, setCon] = useState({
     type:"Freelance Service Agreement",
     freelancerName:"", freelancerEmail:"", freelancerAddress:"",
@@ -1072,7 +1232,7 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
             <button className={`app-tab${page==="contract"?" active":""}`} onClick={()=>setPage("contract")}>📝 Contract</button>
           </div>
           <button className="nav-cta" onClick={()=>setShowPaywall(true)}>
-            {docsGenerated === 0 ? "1 free doc remaining" : "Upgrade · $7/mo"}
+            {docsGenerated === 0 ? "1 free doc remaining" : "Upgrade · $5.99/mo"}
           </button>
         </header>
 
@@ -1112,13 +1272,21 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
                 <div className="gate-icon">✦</div>
                 <h3>Your free document has been used</h3>
                 <p>Upgrade to Lumosdoc Pro to create unlimited invoices and contracts, forever.</p>
-                <div className="gate-price">$7<span>/mo</span></div>
+                <div style={{display:"flex",gap:10,marginBottom:16,flexWrap:"wrap"}}>
+                  <div style={{flex:1,background:"var(--green-light)",border:"1.5px solid var(--green)",borderRadius:12,padding:"14px 16px",textAlign:"center",cursor:"pointer"}} onClick={()=>alert("PADDLE_MONTHLY_URL")}>
+                    <div style={{fontFamily:"'Fraunces',serif",fontSize:22,fontWeight:600,color:"var(--green)"}}>$5.99<span style={{fontSize:13,fontWeight:400}}>/mo</span></div>
+                    <div style={{fontSize:12,color:"var(--ink3)"}}>Monthly</div>
+                  </div>
+                  <div style={{flex:1,background:"var(--ink)",borderRadius:12,padding:"14px 16px",textAlign:"center",cursor:"pointer"}} onClick={()=>alert("PADDLE_ANNUAL_URL")}>
+                    <div style={{fontFamily:"'Fraunces',serif",fontSize:22,fontWeight:600,color:"var(--accent)"}}>$59.99<span style={{fontSize:13,fontWeight:400,color:"#888"}}>/yr</span></div>
+                    <div style={{fontSize:12,color:"#888"}}>Annual · save 2 months 🔥</div>
+                  </div>
+                </div>
                 <div className="gate-features">
-                  {["Unlimited invoices & contracts","All invoice templates","Logo on every document","Plain English contracts","PDF download","Cancel anytime"].map((f,i)=>(
+                  {["Unlimited invoices & contracts","All invoice templates","Logo on every document","Plain English contracts","PDF download every time","Cancel anytime"].map((f,i)=>(
                     <div key={i} className="pf">{f}</div>
                   ))}
                 </div>
-                <button className="gate-btn" onClick={()=>alert("Connect your Paddle checkout URL here")}>Unlock Pro · $7/mo</button>
               </div>
             ) : page === "invoice" ? (
               <>
@@ -1239,6 +1407,50 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
                   </div>
                 </div>
 
+                {/* CONTRACT TEMPLATE + BG COLOR */}
+                <div className="form-card">
+                  <div className="form-card-title">Style & Background</div>
+                  <div style={{marginBottom:14}}>
+                    <div style={{fontSize:12,fontWeight:500,color:"var(--ink3)",marginBottom:8}}>Template</div>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+                      {[
+                        {id:"minimal",name:"Minimal",preview:"#111"},
+                        {id:"professional",name:"Professional",preview:"#2d5a3d"},
+                        {id:"bold",name:"Bold",preview:"#c8a96e"},
+                      ].map(tp=>(
+                        <div key={tp.id} onClick={()=>setConTemplate(tp.id)} style={{
+                          padding:"10px 8px", borderRadius:10, cursor:"pointer", textAlign:"center",
+                          border: conTemplate===tp.id ? `2px solid ${tp.preview}` : "1.5px solid var(--border)",
+                          background: conTemplate===tp.id ? tp.id==="bold"?"#faf6ee":tp.id==="professional"?"#eef5f1":"#f9f9f9" : "var(--surface2)",
+                          transition:"all 0.15s",
+                        }}>
+                          <div style={{height:28,borderRadius:6,background:tp.preview,marginBottom:6}}/>
+                          <div style={{fontSize:11,fontWeight:600,color:"var(--ink2)"}}>{tp.name}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <div style={{fontSize:12,fontWeight:500,color:"var(--ink3)",marginBottom:8}}>Background Colour</div>
+                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                      {[
+                        {color:"#ffffff",label:"White"},
+                        {color:"#f9f7f4",label:"Cream"},
+                        {color:"#f0f4f8",label:"Sky"},
+                        {color:"#f4f0f8",label:"Lavender"},
+                        {color:"#f0f8f4",label:"Mint"},
+                        {color:"#fdf8ef",label:"Sand"},
+                      ].map(bg=>(
+                        <div key={bg.color} onClick={()=>setConBgColor(bg.color)} title={bg.label} style={{
+                          width:28,height:28,borderRadius:"50%",background:bg.color,cursor:"pointer",
+                          border: conBgColor===bg.color ? "2.5px solid var(--green)" : "1.5px solid var(--border)",
+                          transition:"all 0.15s", flexShrink:0,
+                        }}/>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
                 <div className="form-card">
                   <div className="form-card-title">Contract Type</div>
                   <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10}}>
@@ -1345,7 +1557,7 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
               {generatedData?.type === "invoice" ? (
                 <InvoicePreview inv={inv} items={generatedData.items} logo={invLogo} template={invTemplate} />
               ) : generatedData?.type === "contract" ? (
-                <ContractPreview con={con} clauses={generatedData.clauses} logo={conLogo} />
+                <ContractPreview con={con} clauses={generatedData.clauses} logo={conLogo} template={conTemplate} bgColor={conBgColor} />
               ) : (
                 <div className="preview-empty">
                   <div className="preview-empty-icon">✦</div>
@@ -1365,16 +1577,21 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
             <div className="paywall-icon">✦</div>
             <h3>Upgrade to Lumosdoc Pro</h3>
             <p>Your free document has been used. Unlock unlimited invoices and contracts for one simple price.</p>
-            <div className="paywall-price">$7<sub>/mo</sub></div>
-            <div className="paywall-period">Cancel anytime · No hidden fees</div>
+            <div style={{display:"flex",gap:10,margin:"8px 0 16px",width:"100%"}}>
+              <button style={{flex:1,padding:"12px 8px",borderRadius:10,border:"1.5px solid var(--green)",background:"var(--green-light)",cursor:"pointer",fontFamily:"'Cabinet Grotesk',sans-serif"}} onClick={()=>alert("PADDLE_MONTHLY_URL")}>
+                <div style={{fontFamily:"'Fraunces',serif",fontSize:20,fontWeight:600,color:"var(--green)"}}>$5.99<span style={{fontSize:12,fontWeight:400}}>/mo</span></div>
+                <div style={{fontSize:11,color:"var(--ink3)"}}>Monthly</div>
+              </button>
+              <button style={{flex:1,padding:"12px 8px",borderRadius:10,border:"none",background:"var(--ink)",cursor:"pointer",fontFamily:"'Cabinet Grotesk',sans-serif"}} onClick={()=>alert("PADDLE_ANNUAL_URL")}>
+                <div style={{fontFamily:"'Fraunces',serif",fontSize:20,fontWeight:600,color:"var(--accent)"}}>$59.99<span style={{fontSize:12,fontWeight:400,color:"#888"}}>/yr</span></div>
+                <div style={{fontSize:11,color:"#888"}}>Annual · save 2 months 🔥</div>
+              </button>
+            </div>
             <div className="paywall-features">
               {["Unlimited invoices & contracts","All 3 invoice templates","Logo on all documents","8 contract types","PDF download every time","Cancel anytime"].map((f,i)=>(
                 <div key={i} className="pf">{f}</div>
               ))}
             </div>
-            <button className="paywall-btn" onClick={()=>alert("Connect your Paddle checkout URL here")}>
-              Unlock for $7/mo
-            </button>
             <div className="paywall-dismiss" onClick={()=>setShowPaywall(false)}>Maybe later</div>
           </div>
         </div>
