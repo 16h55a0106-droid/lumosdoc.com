@@ -340,7 +340,8 @@ h1,h2,h3,h4,h5 { font-family: 'Fraunces', serif; }
   .app-preview-col { position: static !important; width: 100% !important; }
   .preview-card { border: none !important; border-radius: 0 !important; padding: 0 !important; box-shadow: none !important; }
   body { background: white !important; }
-  @page { margin: 15mm; size: A4; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  @page { margin: 12mm; size: A4; }
 }
 
 @media(max-width:768px){
@@ -1438,10 +1439,11 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
                     const el = document.getElementById('print-area');
                     if(el) {
                       const w = window.open('','_blank');
-                      w.document.write('<html><head><title>Lumosdoc</title><style>body{font-family:sans-serif;padding:20px;max-width:800px;margin:0 auto}@page{margin:15mm;size:A4}</style></head><body>'+el.innerHTML+'</body></html>');
+                      const fonts = "https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Cabinet+Grotesk:wght@400;500;600;700&display=swap";
+                      w.document.write('<html><head><title>Lumosdoc Document</title><link rel="stylesheet" href="' + fonts + '"><style>*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;color-adjust:exact!important;box-sizing:border-box}body{font-family:"Cabinet Grotesk",sans-serif;background:white;padding:0;margin:0}@page{margin:10mm;size:A4}</style></head><body>' + el.innerHTML + '</body></html>');
                       w.document.close();
                       w.focus();
-                      setTimeout(()=>{ w.print(); w.close(); }, 500);
+                      setTimeout(()=>{ w.print(); }, 1000);
                     } else { window.print(); }
                   }}>
                     ⬇ Download PDF
