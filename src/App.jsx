@@ -764,22 +764,28 @@ function InvoicePreview({ inv, items, logo }) {
 function ContractPreview({ con, clauses, logo, theme }) {
   const THEMES = {
     berry:{
-      hBg:"linear-gradient(135deg,#581c87 0%,#7e22ce 50%,#a21caf 100%)",
-      hText:"#fff",hSub:"rgba(255,255,255,0.65)",hBorder:"rgba(255,255,255,0.2)",
-      body:"#fdf4ff",clauseNum:"#9333ea",clauseTitle:"#581c87",
-      divider:"#e9d5ff",partyBg:"#f5f3ff",sigBg:"#fdf4ff",accent:"#c026d3",
+      hBg:"linear-gradient(135deg,#e9d5ff 0%,#f3e8ff 100%)",
+      hText:"#4a1772",hSub:"#7c3aed",hBorder:"rgba(139,92,246,0.2)",
+      body:"#fdf8ff",clauseNum:"#7c3aed",clauseTitle:"#4a1772",
+      divider:"#ede9fe",partyBg:"#f5f3ff",sigBg:"#f3e8ff",accent:"#7c3aed",
     },
     ocean:{
-      hBg:"linear-gradient(135deg,#164e63 0%,#0e7490 50%,#0891b2 100%)",
-      hText:"#fff",hSub:"rgba(255,255,255,0.65)",hBorder:"rgba(255,255,255,0.2)",
-      body:"#ecfeff",clauseNum:"#0891b2",clauseTitle:"#164e63",
-      divider:"#a5f3fc",partyBg:"#f0fdff",sigBg:"#ecfeff",accent:"#06b6d4",
+      hBg:"linear-gradient(135deg,#cffafe 0%,#e0f2fe 100%)",
+      hText:"#164e63",hSub:"#0e7490",hBorder:"rgba(6,182,212,0.2)",
+      body:"#f0fdff",clauseNum:"#0e7490",clauseTitle:"#164e63",
+      divider:"#bae6fd",partyBg:"#e0f2fe",sigBg:"#cffafe",accent:"#0891b2",
     },
     sunset:{
-      hBg:"linear-gradient(135deg,#9a3412 0%,#ea580c 50%,#f59e0b 100%)",
-      hText:"#fff",hSub:"rgba(255,255,255,0.65)",hBorder:"rgba(255,255,255,0.2)",
-      body:"#fffbeb",clauseNum:"#ea580c",clauseTitle:"#9a3412",
-      divider:"#fed7aa",partyBg:"#fff7ed",sigBg:"#fff7ed",accent:"#f59e0b",
+      hBg:"linear-gradient(135deg,#fde68a 0%,#fecaca 100%)",
+      hText:"#7c2d12",hSub:"#c2410c",hBorder:"rgba(234,88,12,0.2)",
+      body:"#fff9f5",clauseNum:"#c2410c",clauseTitle:"#7c2d12",
+      divider:"#fed7aa",partyBg:"#fff7ed",sigBg:"#fde68a",accent:"#ea580c",
+    },
+    mono:{
+      hBg:"linear-gradient(135deg,#1a1a1a 0%,#2a2a2a 100%)",
+      hText:"#fff",hSub:"rgba(255,255,255,0.6)",hBorder:"rgba(255,255,255,0.15)",
+      body:"#ffffff",clauseNum:"#1a1a1a",clauseTitle:"#1a1a1a",
+      divider:"#e5e5e5",partyBg:"#f5f5f5",sigBg:"#f5f5f5",accent:"#1a1a1a",
     },
   };
   const T = THEMES[theme] || THEMES.berry;
@@ -1393,16 +1399,18 @@ export default function App() {
 
                 <div className="form-card">
                   <div className="form-card-title">Colour Theme</div>
-                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:8}}>
                     {[
-                      {id:"berry",label:"Berry",bg:"linear-gradient(135deg,#581c87,#a21caf)",desc:"Plum & Magenta"},
-                      {id:"ocean",label:"Ocean",bg:"linear-gradient(135deg,#164e63,#0891b2)",desc:"Teal & Aqua"},
-                      {id:"sunset",label:"Sunset",bg:"linear-gradient(135deg,#9a3412,#f59e0b)",desc:"Coral & Amber"},
+                      {id:"berry",label:"Berry",bg:"linear-gradient(135deg,#e9d5ff,#f3e8ff)",desc:"Soft Plum",tc:"#4a1772"},
+                      {id:"ocean",label:"Ocean",bg:"linear-gradient(135deg,#cffafe,#e0f2fe)",desc:"Soft Teal",tc:"#164e63"},
+                      {id:"sunset",label:"Sunset",bg:"linear-gradient(135deg,#fde68a,#fecaca)",desc:"Soft Amber",tc:"#7c2d12"},
+                      {id:"mono",label:"Classic",bg:"linear-gradient(135deg,#1a1a1a,#333)",desc:"Black & White",tc:"#fff"},
                     ].map(th=>(
                       <div key={th.id} onClick={()=>setConTheme(th.id)} style={{borderRadius:12,cursor:"pointer",overflow:"hidden",outline:conTheme===th.id?"2.5px solid #1a1a1a":"2px solid transparent",transition:"all 0.15s"}}>
-                        <div style={{height:44,background:th.bg}}/>
-                        <div style={{padding:"8px 10px",background:"var(--surface2)"}}>
-                          <div style={{fontSize:12,fontWeight:600,color:"var(--ink)"}}>{th.label}</div>
+                        <div style={{height:44,background:th.bg,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                          <div style={{fontSize:11,fontWeight:700,color:th.tc||"#1a1a1a",letterSpacing:"0.05em"}}>{th.label}</div>
+                        </div>
+                        <div style={{padding:"6px 8px",background:"var(--surface2)"}}>
                           <div style={{fontSize:11,color:"var(--ink3)"}}>{th.desc}</div>
                         </div>
                       </div>
