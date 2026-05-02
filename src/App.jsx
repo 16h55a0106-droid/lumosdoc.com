@@ -775,88 +775,103 @@ function ContractPreview({ con, clauses, logo }) {
   }).filter(([,v]) => v);
 
   return (
-    <div style={{fontFamily:"'Cabinet Grotesk', sans-serif", color:"#1a1a1a", background:"#fdf9f5", position:"relative", minHeight:600, display:"flex", flexDirection:"column"}}>
+    <div style={{fontFamily:"'Cabinet Grotesk', sans-serif", color:"#1a1a1a", background:"#fdf9f5"}}>
 
-      {/* HERO HEADER — editorial style */}
-      <div style={{background:"#f5ede4", padding:"28px 28px 24px", borderBottom:"1px solid #e8ddd4"}}>
-        <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:16}}>
+      {/* ── TOP HERO SECTION ── */}
+      <div style={{background:"#f5ede4", padding:"40px 36px 36px"}}>
+
+        {/* Logo + date row */}
+        <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:32}}>
           <div>
-            {logo && <img src={logo} style={{maxHeight:36, maxWidth:110, objectFit:"contain", marginBottom:12, display:"block"}} alt="logo" />}
-            <div style={{fontFamily:"'Fraunces',serif", fontSize:28, fontWeight:400, color:"#1a1a1a", letterSpacing:"-0.5px", lineHeight:1.1, maxWidth:280}}>{con.type}</div>
+            {logo
+              ? <img src={logo} style={{maxHeight:40, maxWidth:130, objectFit:"contain", display:"block"}} alt="logo" />
+              : <div style={{fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898"}}>{con.freelancerName||"Lumosdoc"}</div>
+            }
           </div>
-          <div style={{textAlign:"right", paddingTop:4}}>
-            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:8}}>Effective Date</div>
-            <div style={{fontSize:13, fontWeight:500, color:"#1a1a1a"}}>{con.startDate}</div>
-            {con.endDate && <div style={{fontSize:12, color:"#888", marginTop:2}}>Until {con.endDate}</div>}
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:6}}>Date</div>
+            <div style={{fontSize:13, color:"#1a1a1a", fontWeight:500}}>{con.startDate}</div>
+            {con.endDate && <div style={{fontSize:12, color:"#a89880", marginTop:3}}>Ends {con.endDate}</div>}
           </div>
         </div>
 
-        {/* PARTIES ROW */}
-        <div style={{display:"grid", gridTemplateColumns:"1fr auto 1fr", gap:12, alignItems:"center", background:"#efe6dc", borderRadius:10, padding:"14px 16px"}}>
-          <div>
-            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#b8a898", marginBottom:4}}>Freelancer</div>
-            <div style={{fontSize:14, fontWeight:600, color:"#1a1a1a"}}>{con.freelancerName||"—"}</div>
-            <div style={{fontSize:12, color:"#888", marginTop:2, lineHeight:1.5}}>{con.freelancerEmail}{con.freelancerAddress && <><br/>{con.freelancerAddress}</>}</div>
+        {/* LARGE EDITORIAL TITLE */}
+        <div style={{fontFamily:"'Fraunces',serif", fontSize:44, fontWeight:400, color:"#1a1a1a", letterSpacing:"-1.5px", lineHeight:1.08, marginBottom:36, maxWidth:420}}>{con.type}</div>
+
+        {/* PARTIES — 3 column like reference */}
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:0, borderTop:"1px solid #e0d4c8", paddingTop:20}}>
+          <div style={{paddingRight:24, borderRight:"1px solid #e0d4c8"}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:8}}>Service Provider</div>
+            <div style={{fontSize:15, fontWeight:600, color:"#1a1a1a", marginBottom:4}}>{con.freelancerName||"—"}</div>
+            <div style={{fontSize:12, color:"#888", lineHeight:1.7}}>{con.freelancerEmail}{con.freelancerAddress && <><br/>{con.freelancerAddress}</>}</div>
           </div>
-          <div style={{fontFamily:"'Fraunces',serif", fontSize:13, fontStyle:"italic", color:"#b8a898", padding:"0 8px"}}>and</div>
-          <div style={{textAlign:"right"}}>
-            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#b8a898", marginBottom:4}}>Client</div>
-            <div style={{fontSize:14, fontWeight:600, color:"#1a1a1a"}}>{con.clientName||"—"}</div>
-            <div style={{fontSize:12, color:"#888", marginTop:2, lineHeight:1.5}}>{con.clientEmail}{con.clientAddress && <><br/>{con.clientAddress}</>}</div>
+          <div style={{paddingLeft:24, paddingRight:24, borderRight:"1px solid #e0d4c8"}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:8}}>Client</div>
+            <div style={{fontSize:15, fontWeight:600, color:"#1a1a1a", marginBottom:4}}>{con.clientName||"—"}</div>
+            <div style={{fontSize:12, color:"#888", lineHeight:1.7}}>{con.clientEmail}{con.clientAddress && <><br/>{con.clientAddress}</>}</div>
+          </div>
+          <div style={{paddingLeft:24}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:8}}>Project Value</div>
+            {con.paymentAmount
+              ? <>
+                  <div style={{fontFamily:"'Fraunces',serif", fontSize:22, fontWeight:400, color:"#1a1a1a", letterSpacing:"-0.5px", marginBottom:4}}>
+                    {con.paymentCurrency?.split(" ")[1]||"$"}{con.paymentAmount}
+                  </div>
+                  <div style={{fontSize:12, color:"#888"}}>{con.paymentSchedule}</div>
+                </>
+              : <div style={{fontSize:13, color:"#aaa"}}>—</div>
+            }
           </div>
         </div>
       </div>
 
-      {/* PROJECT VALUE BAND */}
-      {con.paymentAmount && (
-        <div style={{background:"#1a1a1a", padding:"12px 28px", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-          <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#666"}}>Project Value</div>
-          <div style={{display:"flex", alignItems:"baseline", gap:10}}>
-            <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:400, color:"#fff", letterSpacing:"-0.5px"}}>
-              {con.paymentCurrency?.split(" ")[1]||"$"}{con.paymentAmount}
-            </div>
-            <div style={{fontSize:11, color:"#666"}}>{con.paymentSchedule}</div>
-          </div>
-        </div>
-      )}
-
-      {/* CLAUSES */}
-      <div style={{padding:"20px 28px", flex:1}}>
+      {/* ── CLAUSES — full width, generous spacing ── */}
+      <div style={{padding:"0 36px"}}>
         {clauseEntries.map(([title, text], i) => (
-          <div key={i} style={{display:"grid", gridTemplateColumns:"180px 1fr", gap:20, padding:"14px 0", borderBottom:"1px solid #ede8e0"}}>
-            <div>
-              <div style={{fontFamily:"'Fraunces',serif", fontSize:14, fontWeight:500, color:"#1a1a1a", lineHeight:1.3}}>{title}</div>
-              <div style={{fontSize:10, fontWeight:700, color:"#c8b8a8", marginTop:3, letterSpacing:"0.06em"}}>§{String(i+1).padStart(2,"0")}</div>
+          <div key={i} style={{padding:"28px 0", borderBottom:"1px solid #ede8e0"}}>
+            {/* Section header — like reference doc */}
+            <div style={{display:"flex", alignItems:"baseline", gap:14, marginBottom:12}}>
+              <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:400, color:"#1a1a1a", letterSpacing:"-0.3px"}}>{title}</div>
+              <div style={{fontSize:10, fontWeight:700, color:"#c8b8a8", letterSpacing:"0.08em"}}>§{String(i+1).padStart(2,"0")}</div>
             </div>
-            <div style={{fontSize:12, color:"#555", lineHeight:1.8}}>{text}</div>
+            {/* Body text — full width, generous line height */}
+            <div style={{fontSize:13, color:"#444", lineHeight:1.85, maxWidth:"90%"}}>{text}</div>
           </div>
         ))}
       </div>
 
-      {/* SIGNATURES */}
-      <div style={{margin:"0 28px 20px", background:"#f5ede4", borderRadius:10, padding:"20px 20px 16px"}}>
-        <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:16, textAlign:"center"}}>Signatures</div>
-        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:24}}>
+      {/* ── SIGNATURES ── */}
+      <div style={{padding:"36px 36px 28px"}}>
+        <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:400, color:"#1a1a1a", marginBottom:28, letterSpacing:"-0.3px"}}>Signatures</div>
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:32}}>
           {[
-            {label:"Freelancer / Service Provider", name: con.freelancerName},
+            {label:"Service Provider / Freelancer", name: con.freelancerName},
             {label:"Client", name: con.clientName},
           ].map((s,i) => (
-            <div key={i} style={{background:"#fff", borderRadius:8, padding:"14px 16px"}}>
-              <div style={{height:40, borderBottom:"1px solid #c8b8a8", marginBottom:10, position:"relative"}}>
-                <div style={{position:"absolute", bottom:6, left:0, fontFamily:"'Fraunces',serif", fontSize:12, color:"#d8c8b8", fontStyle:"italic"}}>Sign here</div>
+            <div key={i}>
+              {/* Signature area */}
+              <div style={{height:64, background:"#f5ede4", borderRadius:8, marginBottom:14, position:"relative", display:"flex", alignItems:"flex-end", padding:"0 12px 10px"}}>
+                <div style={{fontFamily:"'Fraunces',serif", fontSize:13, color:"#c8b8a8", fontStyle:"italic"}}>Sign here</div>
               </div>
-              <div style={{fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#b8a898", marginBottom:3}}>{s.label}</div>
-              <div style={{fontSize:13, fontWeight:500, color:"#1a1a1a"}}>{s.name||"_______________"}</div>
-              <div style={{fontSize:11, color:"#b8a898", marginTop:6}}>Date: ___________</div>
+              <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
+                <div style={{background:"#f5ede4", borderRadius:6, padding:"10px 12px"}}>
+                  <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#b8a898", marginBottom:4}}>{s.label}</div>
+                  <div style={{fontSize:13, fontWeight:600, color:"#1a1a1a"}}>{s.name||"_______________"}</div>
+                </div>
+                <div style={{background:"#f5ede4", borderRadius:6, padding:"10px 12px"}}>
+                  <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#b8a898", marginBottom:4}}>Date</div>
+                  <div style={{fontSize:13, color:"#888"}}>___________</div>
+                </div>
+              </div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* DISCLAIMER — fixed at bottom, subtle */}
-      <div style={{padding:"10px 28px", borderTop:"1px solid #ede8e0", background:"#fdf9f5"}}>
-        <div style={{fontSize:10, color:"#bbb", textAlign:"center", letterSpacing:"0.03em"}}>
-          AI-generated document · Not legal advice · Review with a qualified lawyer before signing · Generated with Lumosdoc
+      {/* ── DISCLAIMER — bottom, single line, subtle ── */}
+      <div style={{padding:"12px 36px 16px", borderTop:"1px solid #ede8e0"}}>
+        <div style={{fontSize:10, color:"#c8b8a8", textAlign:"center", letterSpacing:"0.04em"}}>
+          AI-generated · Not legal advice · Review with a qualified lawyer before signing · Lumosdoc.com
         </div>
       </div>
 
