@@ -435,6 +435,15 @@ const CONTRACT_CONFIGS = {
     clauseHints: "Include clauses about source code ownership, bug warranty period, deployment responsibility, and third-party library licensing.",
   },
 };
+CONTRACT_CONFIGS["Other / Custom Contract"] = {
+  icon: "✍️",
+  color: "#f5f5f5",
+  extraFields: [
+    { key: "contractDescription", label: "Describe your contract", placeholder: "e.g. I need a contract for a brand strategy project where I will be creating a full brand identity over 6 weeks..." },
+    { key: "specialTerms", label: "Any special terms or requirements", placeholder: "e.g. Client owns all assets, I retain right to show in portfolio, payment in 3 milestones..." },
+  ],
+  clauseHints: "Generate a fully custom contract based on the description provided. Make all clauses specific and relevant to what was described.",
+};
 const CONTRACT_TYPES = Object.keys(CONTRACT_CONFIGS);
 const FREE_LIMIT = 1;
 const IS_TEST_MODE = typeof window !== 'undefined' && localStorage.getItem('lumosdoc_test') === 'true';
@@ -646,159 +655,112 @@ function LandingPage({ onGetStarted }) {
 }
 
 // INVOICE PREVIEW
-function InvoicePreview({ inv, items, logo, template }) {
+function InvoicePreview({ inv, items, logo }) {
   const subtotal = items.reduce((s,it) => s + (parseFloat(it.qty)||0)*(parseFloat(it.rate)||0), 0);
   const discountAmt = parseFloat(inv.discount)||0;
   const taxAmt = ((subtotal-discountAmt)*(parseFloat(inv.tax)||0))/100;
   const total = subtotal - discountAmt + taxAmt;
-
-  const templates = {
-    minimal: {
-      wrapper: { fontFamily:"'Cabinet Grotesk', sans-serif", color:"#111" },
-      header: { display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:32, paddingBottom:24, borderBottom:"2px solid #111" },
-      titleStyle: { fontFamily:"'Fraunces',serif", fontSize:36, fontWeight:600, letterSpacing:"-1px", color:"#111", lineHeight:1 },
-      accentBar: null,
-      tableHeaderStyle: { borderBottom:"1px solid #111", borderTop:"1px solid #111" },
-      totalBg: "transparent",
-      totalBorder: "1px solid #111",
-    },
-    professional: {
-      wrapper: { fontFamily:"'Cabinet Grotesk', sans-serif", color:"#111" },
-      header: { display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:28, background:"#2d5a3d", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
-      titleStyle: { fontFamily:"'Fraunces',serif", fontSize:36, fontWeight:600, letterSpacing:"-1px", color:"#fff", lineHeight:1 },
-      accentBar: null,
-      tableHeaderStyle: { borderBottom:"2px solid #2d5a3d", borderTop:"2px solid #2d5a3d" },
-      totalBg: "#eef5f1",
-      totalBorder: "none",
-    },
-    bold: {
-      wrapper: { fontFamily:"'Cabinet Grotesk', sans-serif", color:"#111" },
-      header: { display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:28 },
-      titleStyle: { fontFamily:"'Fraunces',serif", fontSize:36, fontWeight:600, letterSpacing:"-1px", color:"#111", lineHeight:1 },
-      accentBar: { height:4, background:"#c8a96e", margin:"-28px -28px 28px", borderRadius:"18px 18px 0 0" },
-      tableHeaderStyle: { borderBottom:"2px solid #c8a96e", borderTop:"2px solid #c8a96e" },
-      totalBg: "#0a0a0a",
-      totalBorder: "none",
-      totalColor: "#fff",
-    },
-  };
-
-  const t = templates[template] || templates.minimal;
-  const isProf = template === "professional";
-  const isBold = template === "bold";
+  const sym = inv.currency?.split(" ")[1] || "$";
 
   return (
-    <div style={t.wrapper}>
-      {t.accentBar && <div style={t.accentBar} />}
-      <div style={t.header}>
+    <div style={{fontFamily:"'Cabinet Grotesk', sans-serif", color:"#1a1a1a", background:"#faf8f5", borderRadius:16, overflow:"hidden"}}>
+
+      {/* TOP HEADER BAND */}
+      <div style={{background:"#1a1a1a", padding:"24px 28px", display:"flex", justifyContent:"space-between", alignItems:"flex-end"}}>
         <div>
           {logo
-            ? <img src={logo} style={{maxHeight:48, maxWidth:140, objectFit:"contain", marginBottom:8}} alt="logo" />
-            : <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:600, color: isProf?"#fff":"#2d5a3d", marginBottom:4}}>{inv.fromName||"Your Business"}</div>
+            ? <img src={logo} style={{maxHeight:36, maxWidth:120, objectFit:"contain", filter:"brightness(0) invert(1)"}} alt="logo" />
+            : <div style={{fontFamily:"'Fraunces',serif", fontSize:16, fontWeight:600, color:"#e8e0d0", letterSpacing:"0.02em"}}>{inv.fromName||"Your Business"}</div>
           }
-          <div style={{fontSize:12, color: isProf?"rgba(255,255,255,0.7)":"#888", lineHeight:1.8, marginTop:4}}>
-            {inv.fromEmail}{inv.fromAddress && <><br/>{inv.fromAddress}</>}
-          </div>
         </div>
         <div style={{textAlign:"right"}}>
-          <div style={t.titleStyle}>INVOICE</div>
-          <div style={{fontSize:13, color: isProf?"rgba(255,255,255,0.6)":"#aaa", marginTop:4}}>No. {inv.invoiceNumber}</div>
-          <div style={{fontSize:12, color: isProf?"rgba(255,255,255,0.7)":"#888", marginTop:6, lineHeight:1.8}}>
-            {inv.issueDate && <div>Issued: {inv.issueDate}</div>}
-            {inv.dueDate && <div>Due: {inv.dueDate}</div>}
+          <div style={{fontFamily:"'Fraunces',serif", fontSize:32, fontWeight:300, color:"#fff", letterSpacing:"-1px", lineHeight:1}}>INVOICE</div>
+          <div style={{fontSize:11, color:"#888", marginTop:4, letterSpacing:"0.05em"}}>NO. {inv.invoiceNumber}</div>
+        </div>
+      </div>
+
+      {/* CONTENT AREA */}
+      <div style={{padding:"24px 28px"}}>
+
+        {/* FROM / BILL TO / DATES ROW */}
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:20, marginBottom:28, paddingBottom:20, borderBottom:"1px solid #e8e4dc"}}>
+          <div>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#aaa", marginBottom:8}}>From</div>
+            <div style={{fontSize:13, fontWeight:600, color:"#1a1a1a", marginBottom:2}}>{inv.fromName||"—"}</div>
+            <div style={{fontSize:12, color:"#888", lineHeight:1.7}}>{inv.fromEmail}{inv.fromAddress && <><br/>{inv.fromAddress}</>}</div>
+          </div>
+          <div>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#aaa", marginBottom:8}}>Billed To</div>
+            <div style={{fontSize:13, fontWeight:600, color:"#1a1a1a", marginBottom:2}}>{inv.toName||"—"}</div>
+            <div style={{fontSize:12, color:"#888", lineHeight:1.7}}>{inv.toEmail}{inv.toAddress && <><br/>{inv.toAddress}</>}</div>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#aaa", marginBottom:8}}>Details</div>
+            {inv.issueDate && <div style={{fontSize:12, color:"#666", marginBottom:3}}>Issued: <span style={{color:"#1a1a1a", fontWeight:500}}>{inv.issueDate}</span></div>}
+            {inv.dueDate && <div style={{fontSize:12, color:"#666", marginBottom:3}}>Due: <span style={{color:"#1a1a1a", fontWeight:500}}>{inv.dueDate}</span></div>}
+            <div style={{fontSize:12, color:"#666"}}>Terms: <span style={{color:"#1a1a1a", fontWeight:500}}>{inv.paymentTerms}</span></div>
           </div>
         </div>
-      </div>
 
-      {/* Billed to / from section */}
-      <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:24, marginBottom:28}}>
-        <div>
-          <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#aaa", marginBottom:6}}>From</div>
-          <div style={{fontSize:14, fontWeight:600, color:"#111", marginBottom:2}}>{inv.fromName||"—"}</div>
-          <div style={{fontSize:12, color:"#666", lineHeight:1.7}}>{inv.fromEmail}{inv.fromAddress && <><br/>{inv.fromAddress}</>}</div>
-        </div>
-        <div>
-          <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#aaa", marginBottom:6}}>Billed To</div>
-          <div style={{fontSize:14, fontWeight:600, color:"#111", marginBottom:2}}>{inv.toName||"—"}</div>
-          <div style={{fontSize:12, color:"#666", lineHeight:1.7}}>{inv.toEmail}{inv.toAddress && <><br/>{inv.toAddress}</>}</div>
-        </div>
-      </div>
-
-      {/* Line items table */}
-      <table style={{width:"100%", borderCollapse:"collapse", marginBottom:16}}>
-        <thead>
-          <tr style={t.tableHeaderStyle}>
-            <th style={{textAlign:"left", fontSize:11, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em", color:"#888", padding:"10px 0", width:"50%"}}>Item</th>
-            <th style={{textAlign:"center", fontSize:11, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em", color:"#888", padding:"10px 8px"}}>Qty</th>
-            <th style={{textAlign:"right", fontSize:11, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em", color:"#888", padding:"10px 8px"}}>Unit Price</th>
-            <th style={{textAlign:"right", fontSize:11, fontWeight:600, textTransform:"uppercase", letterSpacing:"0.08em", color:"#888", padding:"10px 0"}}>Total</th>
-          </tr>
-        </thead>
-        <tbody>
-          {items.map((it,i) => (
-            <tr key={i} style={{borderBottom:"1px solid #f0f0f0"}}>
-              <td style={{padding:"11px 0", fontSize:13, color:"#333"}}>{it.desc||"—"}</td>
-              <td style={{padding:"11px 8px", fontSize:13, color:"#666", textAlign:"center"}}>{it.qty}</td>
-              <td style={{padding:"11px 8px", fontSize:13, color:"#666", textAlign:"right"}}>{fmt(it.rate, inv.currency)}</td>
-              <td style={{padding:"11px 0", fontSize:13, fontWeight:600, color:"#111", textAlign:"right"}}>{fmt((parseFloat(it.qty)||0)*(parseFloat(it.rate)||0), inv.currency)}</td>
+        {/* LINE ITEMS */}
+        <table style={{width:"100%", borderCollapse:"collapse", marginBottom:20}}>
+          <thead>
+            <tr style={{borderBottom:"1.5px solid #1a1a1a"}}>
+              {["Item","Qty","Unit Price","Total"].map((h,i) => (
+                <th key={i} style={{
+                  textAlign: i===0?"left":"right",
+                  fontSize:10, fontWeight:700, textTransform:"uppercase",
+                  letterSpacing:"0.1em", color:"#888", padding:"8px 0", paddingLeft: i===0?0:8,
+                }}>{h}</th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {items.map((it,i) => (
+              <tr key={i} style={{borderBottom:"1px solid #eee"}}>
+                <td style={{padding:"12px 0", fontSize:13, color:"#333", fontWeight:500}}>{it.desc||"—"}</td>
+                <td style={{padding:"12px 8px", fontSize:13, color:"#888", textAlign:"right"}}>{it.qty}</td>
+                <td style={{padding:"12px 8px", fontSize:13, color:"#888", textAlign:"right"}}>{sym}{parseFloat(it.rate||0).toFixed(2)}</td>
+                <td style={{padding:"12px 0", fontSize:13, fontWeight:600, color:"#1a1a1a", textAlign:"right"}}>{sym}{((parseFloat(it.qty)||0)*(parseFloat(it.rate)||0)).toFixed(2)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      {/* Totals */}
-      <div style={{display:"flex", justifyContent:"flex-end", marginBottom:24}}>
-        <div style={{width:220}}>
-          {discountAmt > 0 && (
-            <div style={{display:"flex", justifyContent:"space-between", fontSize:13, color:"#888", padding:"4px 0"}}>
-              <span>Discount</span><span>−{fmt(discountAmt, inv.currency)}</span>
+        {/* TOTALS + NOTES ROW */}
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:20, alignItems:"end"}}>
+          <div>
+            {(inv.notes || inv.additionalInfo) && (
+              <div style={{background:"#f0ede8", borderRadius:8, padding:"12px 14px"}}>
+                {inv.notes && <div style={{fontSize:12, color:"#666", lineHeight:1.7, marginBottom: inv.additionalInfo?8:0}}><span style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"#aaa",display:"block",marginBottom:4}}>Notes</span>{inv.notes}</div>}
+                {inv.additionalInfo && <div style={{fontSize:12, color:"#666", lineHeight:1.7}}><span style={{fontSize:10,fontWeight:700,textTransform:"uppercase",letterSpacing:"0.08em",color:"#aaa",display:"block",marginBottom:4}}>Additional Info</span>{inv.additionalInfo}</div>}
+              </div>
+            )}
+          </div>
+          <div style={{background:"#1a1a1a", borderRadius:10, padding:"16px 18px"}}>
+            {discountAmt > 0 && <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"#888",marginBottom:6}}><span>Discount</span><span>−{sym}{discountAmt.toFixed(2)}</span></div>}
+            {taxAmt > 0 && <div style={{display:"flex",justifyContent:"space-between",fontSize:12,color:"#888",marginBottom:6}}><span>Tax ({inv.tax}%)</span><span>{sym}{taxAmt.toFixed(2)}</span></div>}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",paddingTop: (discountAmt>0||taxAmt>0)?10:0, borderTop:(discountAmt>0||taxAmt>0)?"1px solid #333":"none"}}>
+              <span style={{fontSize:12,color:"#aaa",textTransform:"uppercase",letterSpacing:"0.08em"}}>Total Due</span>
+              <span style={{fontFamily:"'Fraunces',serif",fontSize:22,fontWeight:400,color:"#fff",letterSpacing:"-0.5px"}}>{sym}{total.toFixed(2)}</span>
             </div>
-          )}
-          {taxAmt > 0 && (
-            <div style={{display:"flex", justifyContent:"space-between", fontSize:13, color:"#888", padding:"4px 0"}}>
-              <span>Tax ({inv.tax}%)</span><span>{fmt(taxAmt, inv.currency)}</span>
-            </div>
-          )}
-          <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", background:t.totalBg, border:t.totalBorder, borderRadius:t.totalBg!=="transparent"?10:0, padding: t.totalBg!=="transparent"?"12px 14px":"10px 0 0", marginTop:8, borderTop: t.totalBg==="transparent"?"2px solid #111":"none"}}>
-            <span style={{fontFamily:"'Fraunces',serif", fontSize:14, fontWeight:600, color: isBold?"#fff":"#111"}}>Total</span>
-            <span style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:600, color: isBold?"#fff":"#111"}}>{fmt(total, inv.currency)}</span>
           </div>
         </div>
+
+        {/* FOOTER */}
+        <div style={{marginTop:20, paddingTop:14, borderTop:"1px solid #e8e4dc", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+          <div style={{fontSize:11, color:"#bbb"}}>Generated with Lumosdoc · lumosdoc.com</div>
+          <div style={{fontFamily:"'Fraunces',serif", fontSize:13, fontStyle:"italic", color:"#bbb"}}>Thank you.</div>
+        </div>
+
       </div>
-
-      {/* Notes */}
-      {(inv.notes || inv.additionalInfo) && (
-        <div style={{paddingTop:16, borderTop:"1px solid #f0f0f0", marginTop:8}}>
-          {inv.notes && (
-            <div style={{marginBottom:8}}>
-              <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#aaa", marginBottom:4}}>Notes</div>
-              <div style={{fontSize:12, color:"#666", lineHeight:1.7}}>{inv.notes}</div>
-            </div>
-          )}
-          {inv.additionalInfo && (
-            <div>
-              <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#aaa", marginBottom:4}}>Additional Info</div>
-              <div style={{fontSize:12, color:"#666", lineHeight:1.7}}>{inv.additionalInfo}</div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Payment terms */}
-      {inv.paymentTerms && (
-        <div style={{marginTop:16, paddingTop:16, borderTop:"1px solid #f0f0f0", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
-          <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#aaa"}}>Payment Terms</div>
-          <div style={{fontSize:12, color:"#333", fontWeight:500}}>{inv.paymentTerms}</div>
-        </div>
-      )}
-
-      <div style={{marginTop:24, textAlign:"center", fontSize:11, color:"#ddd"}}>Generated with Lumosdoc · lumosdoc.com</div>
     </div>
   );
 }
 
+
 // CONTRACT PREVIEW
-function ContractPreview({ con, clauses, logo, template, bgColor }) {
+function ContractPreview({ con, clauses, logo }) {
   const clauseEntries = Object.entries({
     "Scope of Work": clauses.scope,
     "Deliverables": clauses.deliverables,
@@ -811,128 +773,92 @@ function ContractPreview({ con, clauses, logo, template, bgColor }) {
     ...(con.additionalInfo ? {"Additional Terms": con.additionalInfo} : {}),
   }).filter(([,v]) => v);
 
-  const bg = bgColor || "#ffffff";
-  const isLight = bg === "#ffffff";
-
-  const templates = {
-    minimal: {
-      headerStyle: { borderBottom:"2px solid #111", paddingBottom:20, marginBottom:24 },
-      titleColor: "#111",
-      numColor: "#111",
-      clauseTitleColor: "#111",
-      sigLineColor: "#111",
-      partyBg: bg === "#ffffff" ? "#f8f8f8" : "rgba(0,0,0,0.03)",
-      dividerColor: "#e8e8e8",
-    },
-    professional: {
-      headerStyle: { background:"linear-gradient(135deg, #2d5a3d 0%, #1e3d2a 100%)", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
-      titleColor: "#fff",
-      numColor: "#2d5a3d",
-      clauseTitleColor: "#1e3d2a",
-      sigLineColor: "#2d5a3d",
-      partyBg: "#eef5f1",
-      dividerColor: "#e0ede5",
-    },
-    bold: {
-      headerStyle: { background:"linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
-      titleColor: "#fff",
-      numColor: "#c8a96e",
-      clauseTitleColor: "#111",
-      sigLineColor: "#c8a96e",
-      partyBg: "#faf6ee",
-      dividerColor: "#f0ebe0",
-    },
-  };
-
-  const t = templates[template||"minimal"];
-  const isColorHeader = template === "professional" || template === "bold";
-
   return (
-    <div style={{fontFamily:"'Cabinet Grotesk', sans-serif", color:"#111", fontSize:13, background:bg, padding: bg !== "#ffffff" ? "4px" : 0, borderRadius: bg !== "#ffffff" ? 8 : 0}}>
+    <div style={{fontFamily:"'Cabinet Grotesk', sans-serif", color:"#1a1a1a", background:"#fdf9f5", position:"relative", minHeight:600, display:"flex", flexDirection:"column"}}>
 
-      {/* HEADER */}
-      <div style={t.headerStyle}>
-        <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start"}}>
+      {/* HERO HEADER — editorial style */}
+      <div style={{background:"#f5ede4", padding:"28px 28px 24px", borderBottom:"1px solid #e8ddd4"}}>
+        <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:16}}>
           <div>
-            {logo && <img src={logo} style={{maxHeight:40, maxWidth:120, objectFit:"contain", marginBottom:8, display:"block", filter: isColorHeader?"brightness(0) invert(1)":"none"}} alt="logo" />}
-            <div style={{fontFamily:"'Fraunces',serif", fontSize:18, fontWeight:600, color: t.titleColor, letterSpacing:"-0.3px"}}>{con.type}</div>
-            <div style={{fontSize:12, color: isColorHeader?"rgba(255,255,255,0.6)":"#aaa", marginTop:3}}>
-              Effective {con.startDate}{con.endDate ? ` – ${con.endDate}` : ""}
-            </div>
+            {logo && <img src={logo} style={{maxHeight:36, maxWidth:110, objectFit:"contain", marginBottom:12, display:"block"}} alt="logo" />}
+            <div style={{fontFamily:"'Fraunces',serif", fontSize:28, fontWeight:400, color:"#1a1a1a", letterSpacing:"-0.5px", lineHeight:1.1, maxWidth:280}}>{con.type}</div>
           </div>
+          <div style={{textAlign:"right", paddingTop:4}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:8}}>Effective Date</div>
+            <div style={{fontSize:13, fontWeight:500, color:"#1a1a1a"}}>{con.startDate}</div>
+            {con.endDate && <div style={{fontSize:12, color:"#888", marginTop:2}}>Until {con.endDate}</div>}
+          </div>
+        </div>
+
+        {/* PARTIES ROW */}
+        <div style={{display:"grid", gridTemplateColumns:"1fr auto 1fr", gap:12, alignItems:"center", background:"#efe6dc", borderRadius:10, padding:"14px 16px"}}>
+          <div>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#b8a898", marginBottom:4}}>Freelancer</div>
+            <div style={{fontSize:14, fontWeight:600, color:"#1a1a1a"}}>{con.freelancerName||"—"}</div>
+            <div style={{fontSize:12, color:"#888", marginTop:2, lineHeight:1.5}}>{con.freelancerEmail}{con.freelancerAddress && <><br/>{con.freelancerAddress}</>}</div>
+          </div>
+          <div style={{fontFamily:"'Fraunces',serif", fontSize:13, fontStyle:"italic", color:"#b8a898", padding:"0 8px"}}>and</div>
           <div style={{textAlign:"right"}}>
-            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color: isColorHeader?"rgba(255,255,255,0.5)":"#bbb", marginBottom:4}}>Agreement Between</div>
-            <div style={{fontSize:13, fontWeight:600, color: t.titleColor}}>{con.freelancerName||"Freelancer"}</div>
-            <div style={{fontSize:12, color: isColorHeader?"rgba(255,255,255,0.6)":"#aaa"}}>and</div>
-            <div style={{fontSize:13, fontWeight:600, color: t.titleColor}}>{con.clientName||"Client"}</div>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#b8a898", marginBottom:4}}>Client</div>
+            <div style={{fontSize:14, fontWeight:600, color:"#1a1a1a"}}>{con.clientName||"—"}</div>
+            <div style={{fontSize:12, color:"#888", marginTop:2, lineHeight:1.5}}>{con.clientEmail}{con.clientAddress && <><br/>{con.clientAddress}</>}</div>
           </div>
         </div>
       </div>
 
-      {/* PARTIES */}
-      <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:24}}>
-        {[
-          { label:"Freelancer", name: con.freelancerName, email: con.freelancerEmail, address: con.freelancerAddress },
-          { label:"Client", name: con.clientName, email: con.clientEmail, address: con.clientAddress },
-        ].map((p,i) => (
-          <div key={i} style={{background:t.partyBg, borderRadius:10, padding:"12px 14px"}}>
-            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#aaa", marginBottom:5}}>{p.label}</div>
-            <div style={{fontSize:13, fontWeight:600, color:"#111", marginBottom:2}}>{p.name||"—"}</div>
-            <div style={{fontSize:12, color:"#666", lineHeight:1.6}}>{p.email}{p.address && <><br/>{p.address}</>}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* PAYMENT SUMMARY PILL */}
+      {/* PROJECT VALUE BAND */}
       {con.paymentAmount && (
-        <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", background:t.partyBg, borderRadius:10, padding:"12px 16px", marginBottom:24, borderLeft:`3px solid ${t.numColor}`, border:`1px solid ${t.dividerColor}`, borderLeftWidth:3, borderLeftColor:t.numColor}}>
-          <div style={{fontSize:12, color:"#888"}}>Project Value</div>
-          <div style={{fontFamily:"'Fraunces',serif", fontSize:18, fontWeight:600, color:"#111"}}>
-            {con.paymentCurrency?.split(" ")[1]||"$"}{con.paymentAmount}
-            <span style={{fontSize:12, fontWeight:400, color:"#aaa", marginLeft:6}}>{con.paymentSchedule}</span>
+        <div style={{background:"#1a1a1a", padding:"12px 28px", display:"flex", justifyContent:"space-between", alignItems:"center"}}>
+          <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#666"}}>Project Value</div>
+          <div style={{display:"flex", alignItems:"baseline", gap:10}}>
+            <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:400, color:"#fff", letterSpacing:"-0.5px"}}>
+              {con.paymentCurrency?.split(" ")[1]||"$"}{con.paymentAmount}
+            </div>
+            <div style={{fontSize:11, color:"#666"}}>{con.paymentSchedule}</div>
           </div>
         </div>
       )}
 
       {/* CLAUSES */}
-      <div style={{display:"flex", flexDirection:"column", gap:0}}>
+      <div style={{padding:"20px 28px", flex:1}}>
         {clauseEntries.map(([title, text], i) => (
-          <div key={i} style={{padding:"14px 0", borderBottom:`1px solid ${t.dividerColor}`, display:"flex", gap:14}}>
-            <div style={{fontSize:11, fontWeight:700, color:t.numColor, minWidth:20, paddingTop:1}}>{String(i+1).padStart(2,"0")}</div>
-            <div style={{flex:1}}>
-              <div style={{fontSize:13, fontWeight:600, color:t.clauseTitleColor, marginBottom:5, letterSpacing:"-0.1px"}}>{title}</div>
-              <div style={{fontSize:12, color:"#555", lineHeight:1.75}}>{text}</div>
+          <div key={i} style={{display:"grid", gridTemplateColumns:"180px 1fr", gap:20, padding:"14px 0", borderBottom:"1px solid #ede8e0"}}>
+            <div>
+              <div style={{fontFamily:"'Fraunces',serif", fontSize:14, fontWeight:500, color:"#1a1a1a", lineHeight:1.3}}>{title}</div>
+              <div style={{fontSize:10, fontWeight:700, color:"#c8b8a8", marginTop:3, letterSpacing:"0.06em"}}>§{String(i+1).padStart(2,"0")}</div>
             </div>
+            <div style={{fontSize:12, color:"#555", lineHeight:1.8}}>{text}</div>
           </div>
         ))}
       </div>
 
       {/* SIGNATURES */}
-      <div style={{marginTop:32, paddingTop:20, borderTop:`1px solid ${t.dividerColor}`}}>
-        <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#aaa", marginBottom:20, textAlign:"center"}}>Agreed and Signed</div>
-        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:32}}>
+      <div style={{margin:"0 28px 20px", background:"#f5ede4", borderRadius:10, padding:"20px 20px 16px"}}>
+        <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:16, textAlign:"center"}}>Signatures</div>
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:24}}>
           {[
-            { label:"Freelancer", name: con.freelancerName },
-            { label:"Client", name: con.clientName },
+            {label:"Freelancer / Service Provider", name: con.freelancerName},
+            {label:"Client", name: con.clientName},
           ].map((s,i) => (
-            <div key={i}>
-              <div style={{height:48, borderBottom:`1.5px solid ${t.sigLineColor}`, marginBottom:8, position:"relative"}}>
-                <div style={{position:"absolute", bottom:8, left:0, fontFamily:"'Fraunces',serif", fontSize:14, color:"#ccc", fontStyle:"italic"}}>Sign here</div>
+            <div key={i} style={{background:"#fff", borderRadius:8, padding:"14px 16px"}}>
+              <div style={{height:40, borderBottom:"1px solid #c8b8a8", marginBottom:10, position:"relative"}}>
+                <div style={{position:"absolute", bottom:6, left:0, fontFamily:"'Fraunces',serif", fontSize:12, color:"#d8c8b8", fontStyle:"italic"}}>Sign here</div>
               </div>
-              <div style={{fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#aaa", marginBottom:3}}>{s.label}</div>
-              <div style={{fontSize:13, fontWeight:500, color:"#333"}}>{s.name||"_______________"}</div>
-              <div style={{fontSize:12, color:"#aaa", marginTop:4}}>Date: ___________</div>
+              <div style={{fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.08em", color:"#b8a898", marginBottom:3}}>{s.label}</div>
+              <div style={{fontSize:13, fontWeight:500, color:"#1a1a1a"}}>{s.name||"_______________"}</div>
+              <div style={{fontSize:11, color:"#b8a898", marginTop:6}}>Date: ___________</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* DISCLAIMER */}
-      <div style={{marginTop:20, textAlign:"center", fontSize:11, color:"#aaa", lineHeight:1.5}}>
-        AI-generated · Not legal advice · Review with a lawyer before signing
+      {/* DISCLAIMER — fixed at bottom, subtle */}
+      <div style={{padding:"10px 28px", borderTop:"1px solid #ede8e0", background:"#fdf9f5"}}>
+        <div style={{fontSize:10, color:"#bbb", textAlign:"center", letterSpacing:"0.03em"}}>
+          AI-generated document · Not legal advice · Review with a qualified lawyer before signing · Generated with Lumosdoc
+        </div>
       </div>
 
-      <div style={{marginTop:16, textAlign:"center", fontSize:11, color:"#ddd"}}>Generated with Lumosdoc · lumosdoc.com</div>
     </div>
   );
 }
@@ -1102,7 +1028,7 @@ export default function App() {
 
   // Invoice state
   const [invLogo, setInvLogo] = useState(null);
-  const [invTemplate, setInvTemplate] = useState("minimal");
+
   const [inv, setInv] = useState({
     fromName:"", fromEmail:"", fromAddress:"",
     toName:"", toEmail:"", toAddress:"",
@@ -1115,8 +1041,7 @@ export default function App() {
 
   // Contract state
   const [conLogo, setConLogo] = useState(null);
-  const [conTemplate, setConTemplate] = useState("minimal");
-  const [conBgColor, setConBgColor] = useState("#ffffff");
+
   const [con, setCon] = useState({
     type:"Freelance Service Agreement",
     freelancerName:"", freelancerEmail:"", freelancerAddress:"",
@@ -1199,6 +1124,7 @@ Revisions: ${con.revisions} rounds
 Type-specific details: ${JSON.stringify(con.extraFields||{})}
 Additional: ${con.additionalInfo||"None"}
 Special instructions: ${CONTRACT_CONFIGS[con.type]?.clauseHints||""}
+${con.type === 'Other / Custom Contract' ? 'IMPORTANT: This is a custom contract. Generate clauses entirely based on the description provided by the user. Make every clause specific to their situation.' : ''}
 Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ownership, confidentiality, termination, disputes. Each value: 2-3 plain English sentences specific to this type of contract. No legalese. Make clauses genuinely relevant to a ${con.type}.`}]
         })
       });
@@ -1311,27 +1237,7 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
               </div>
             ) : page === "invoice" ? (
               <>
-                {/* TEMPLATE SELECTOR */}
-                <div className="form-card">
-                  <div className="form-card-title">Choose template</div>
-                  <div className="template-grid">
-                    {[
-                      { id:"minimal", name:"Minimal", lines:[{},{},"accent","short"] },
-                      { id:"professional", name:"Professional", lines:["dark",{},"accent","short"] },
-                      { id:"bold", name:"Bold", lines:["dark","dark","accent","shorter"] },
-                    ].map(t => (
-                      <div key={t.id} className={`template-opt${invTemplate===t.id?" selected":""}`} onClick={()=>setInvTemplate(t.id)}>
-                        <div className="template-thumb" style={{background: t.id==="bold" ? "#0a0a0a" : t.id==="professional" ? "#eef5f1" : "#f7f6f3"}}>
-                          <div className="template-thumb-line dark" style={{width:"50%"}} />
-                          <div className="template-thumb-line" style={{width:"100%", background: t.id==="bold"?"#333": t.id==="professional"?"var(--green)":"var(--border)"}} />
-                          <div className="template-thumb-line" style={{width:"80%", background: t.id==="bold"?"#444":"var(--border)"}} />
-                          <div className="template-thumb-line accent" style={{width:"40%", background: t.id==="bold"?"var(--accent)":t.id==="professional"?"var(--green)":"var(--ink)"}} />
-                        </div>
-                        <div className="template-name">{t.name}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+
 
                 {/* LOGO */}
                 <div className="form-card">
@@ -1428,49 +1334,7 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
                   </div>
                 </div>
 
-                {/* CONTRACT TEMPLATE + BG COLOR */}
-                <div className="form-card">
-                  <div className="form-card-title">Style & Background</div>
-                  <div style={{marginBottom:14}}>
-                    <div style={{fontSize:12,fontWeight:500,color:"var(--ink3)",marginBottom:8}}>Template</div>
-                    <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
-                      {[
-                        {id:"minimal",name:"Minimal",preview:"#111"},
-                        {id:"professional",name:"Professional",preview:"#2d5a3d"},
-                        {id:"bold",name:"Bold",preview:"#c8a96e"},
-                      ].map(tp=>(
-                        <div key={tp.id} onClick={()=>setConTemplate(tp.id)} style={{
-                          padding:"10px 8px", borderRadius:10, cursor:"pointer", textAlign:"center",
-                          border: conTemplate===tp.id ? `2px solid ${tp.preview}` : "1.5px solid var(--border)",
-                          background: conTemplate===tp.id ? tp.id==="bold"?"#faf6ee":tp.id==="professional"?"#eef5f1":"#f9f9f9" : "var(--surface2)",
-                          transition:"all 0.15s",
-                        }}>
-                          <div style={{height:28,borderRadius:6,background:tp.preview,marginBottom:6}}/>
-                          <div style={{fontSize:11,fontWeight:600,color:"var(--ink2)"}}>{tp.name}</div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{fontSize:12,fontWeight:500,color:"var(--ink3)",marginBottom:8}}>Background Colour</div>
-                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                      {[
-                        {color:"#ffffff",label:"White"},
-                        {color:"#f9f7f4",label:"Cream"},
-                        {color:"#f0f4f8",label:"Sky"},
-                        {color:"#f4f0f8",label:"Lavender"},
-                        {color:"#f0f8f4",label:"Mint"},
-                        {color:"#fdf8ef",label:"Sand"},
-                      ].map(bg=>(
-                        <div key={bg.color} onClick={()=>setConBgColor(bg.color)} title={bg.label} style={{
-                          width:28,height:28,borderRadius:"50%",background:bg.color,cursor:"pointer",
-                          border: conBgColor===bg.color ? "2.5px solid var(--green)" : "1.5px solid var(--border)",
-                          transition:"all 0.15s", flexShrink:0,
-                        }}/>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+
 
                 <div className="form-card">
                   <div className="form-card-title">Contract Type</div>
@@ -1586,9 +1450,9 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
               </div>
               <div id="print-area">
               {generatedData?.type === "invoice" ? (
-                <InvoicePreview inv={inv} items={generatedData.items} logo={invLogo} template={invTemplate} />
+                <InvoicePreview inv={inv} items={generatedData.items} logo={invLogo} />
               ) : generatedData?.type === "contract" ? (
-                <ContractPreview con={con} clauses={generatedData.clauses} logo={conLogo} template={conTemplate} bgColor={conBgColor} />
+                <ContractPreview con={con} clauses={generatedData.clauses} logo={conLogo} />
               ) : (
                 <div className="preview-empty">
                   <div className="preview-empty-icon">✦</div>
