@@ -330,6 +330,19 @@ h1,h2,h3,h4,h5 { font-family: 'Fraunces', serif; }
 .email-capture-btn:hover { background: var(--accent2); }
 .email-submitted { font-size: 14px; color: var(--green); font-weight: 500; }
 
+
+/* ── PRINT / PDF ── */
+@media print {
+  .nav, .app-header, .app-form-col, .preview-label, .sidebar,
+  .success-banner, .email-capture, .paywall-overlay, .legal-overlay,
+  .gate-wall, .nav-cta, .app-tabs { display: none !important; }
+  .app-body { display: block !important; padding: 0 !important; }
+  .app-preview-col { position: static !important; width: 100% !important; }
+  .preview-card { border: none !important; border-radius: 0 !important; padding: 0 !important; box-shadow: none !important; }
+  body { background: white !important; }
+  @page { margin: 15mm; size: A4; }
+}
+
 @media(max-width:768px){
   .hero-content,.app-body,.features-header { grid-template-columns:1fr; }
   .how-grid,.features-grid,.pricing-cards { grid-template-columns:1fr; }
@@ -424,6 +437,7 @@ const CONTRACT_CONFIGS = {
 };
 const CONTRACT_TYPES = Object.keys(CONTRACT_CONFIGS);
 const FREE_LIMIT = 1;
+const IS_TEST_MODE = typeof window !== 'undefined' && localStorage.getItem('lumosdoc_test') === 'true';
 
 function fmt(amount, currency) {
   const sym = currency?.split(" ")[1] || "$";
@@ -807,20 +821,20 @@ function ContractPreview({ con, clauses, logo, template, bgColor }) {
       numColor: "#111",
       clauseTitleColor: "#111",
       sigLineColor: "#111",
-      partyBg: bg === "#ffffff" ? "#f9f9f9" : "rgba(0,0,0,0.04)",
+      partyBg: bg === "#ffffff" ? "#f8f8f8" : "rgba(0,0,0,0.03)",
       dividerColor: "#e8e8e8",
     },
     professional: {
-      headerStyle: { background:"#2d5a3d", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
+      headerStyle: { background:"linear-gradient(135deg, #2d5a3d 0%, #1e3d2a 100%)", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
       titleColor: "#fff",
       numColor: "#2d5a3d",
-      clauseTitleColor: "#2d5a3d",
+      clauseTitleColor: "#1e3d2a",
       sigLineColor: "#2d5a3d",
       partyBg: "#eef5f1",
       dividerColor: "#e0ede5",
     },
     bold: {
-      headerStyle: { background:"#0a0a0a", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
+      headerStyle: { background:"linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%)", margin:"-28px -28px 28px", padding:"28px 28px 24px", borderRadius:"18px 18px 0 0" },
       titleColor: "#fff",
       numColor: "#c8a96e",
       clauseTitleColor: "#111",
@@ -871,7 +885,7 @@ function ContractPreview({ con, clauses, logo, template, bgColor }) {
 
       {/* PAYMENT SUMMARY PILL */}
       {con.paymentAmount && (
-        <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", background:t.partyBg, borderRadius:10, padding:"10px 16px", marginBottom:24, borderLeft:`3px solid ${t.numColor}`}}>
+        <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", background:t.partyBg, borderRadius:10, padding:"12px 16px", marginBottom:24, borderLeft:`3px solid ${t.numColor}`, border:`1px solid ${t.dividerColor}`, borderLeftWidth:3, borderLeftColor:t.numColor}}>
           <div style={{fontSize:12, color:"#888"}}>Project Value</div>
           <div style={{fontFamily:"'Fraunces',serif", fontSize:18, fontWeight:600, color:"#111"}}>
             {con.paymentCurrency?.split(" ")[1]||"$"}{con.paymentAmount}
@@ -894,7 +908,7 @@ function ContractPreview({ con, clauses, logo, template, bgColor }) {
       </div>
 
       {/* SIGNATURES */}
-      <div style={{marginTop:32, paddingTop:20, borderTop:`2px solid ${t.sigLineColor}`}}>
+      <div style={{marginTop:32, paddingTop:20, borderTop:`1px solid ${t.dividerColor}`}}>
         <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#aaa", marginBottom:20, textAlign:"center"}}>Agreed and Signed</div>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:32}}>
           {[
@@ -914,8 +928,8 @@ function ContractPreview({ con, clauses, logo, template, bgColor }) {
       </div>
 
       {/* DISCLAIMER */}
-      <div style={{marginTop:20, padding:"10px 14px", background:"#fffbeb", borderLeft:"3px solid #f59e0b", borderRadius:"0 6px 6px 0", fontSize:11, color:"#92400e", lineHeight:1.5}}>
-        AI-generated document for reference only. Not legal advice. Review with a qualified lawyer before signing.
+      <div style={{marginTop:20, textAlign:"center", fontSize:11, color:"#aaa", lineHeight:1.5}}>
+        AI-generated · Not legal advice · Review with a lawyer before signing
       </div>
 
       <div style={{marginTop:16, textAlign:"center", fontSize:11, color:"#ddd"}}>Generated with Lumosdoc · lumosdoc.com</div>
@@ -1137,6 +1151,7 @@ export default function App() {
   };
 
   const canProceed = () => {
+    if (IS_TEST_MODE) return true;
     if (docsGenerated >= FREE_LIMIT) { setShowPaywall(true); return false; }
     return true;
   };
@@ -1209,7 +1224,7 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
     setLoading(false);
   };
 
-  const isLocked = docsGenerated >= FREE_LIMIT;
+  const isLocked = IS_TEST_MODE ? false : docsGenerated >= FREE_LIMIT;
 
   if (view === "landing") {
     return (
@@ -1231,7 +1246,13 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
             <button className={`app-tab${page==="invoice"?" active":""}`} onClick={()=>setPage("invoice")}>📄 Invoice</button>
             <button className={`app-tab${page==="contract"?" active":""}`} onClick={()=>setPage("contract")}>📝 Contract</button>
           </div>
-          <button className="nav-cta" onClick={()=>setShowPaywall(true)}>
+          {IS_TEST_MODE && (
+            <span style={{fontSize:11,background:"#fff3cd",color:"#856404",padding:"4px 10px",borderRadius:999,marginRight:8,fontWeight:600}}>
+              TEST MODE
+              <button onClick={()=>{localStorage.removeItem('lumosdoc_test');localStorage.removeItem('lumosdoc_docs');window.location.reload();}} style={{marginLeft:8,background:"none",border:"none",cursor:"pointer",color:"#856404",fontSize:11,fontWeight:600}}>Exit ×</button>
+            </span>
+          )}
+        <button className="nav-cta" onClick={()=>setShowPaywall(true)}>
             {docsGenerated === 0 ? "1 free doc remaining" : "Upgrade · $5.99/mo"}
           </button>
         </header>
@@ -1549,11 +1570,21 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
               <div className="preview-label">
                 Live Preview
                 {generatedData && (
-                  <button className="download-btn" onClick={()=>window.print()}>
+                  <button className="download-btn" onClick={()=>{
+                    const el = document.getElementById('print-area');
+                    if(el) {
+                      const w = window.open('','_blank');
+                      w.document.write('<html><head><title>Lumosdoc</title><style>body{font-family:sans-serif;padding:20px;max-width:800px;margin:0 auto}@page{margin:15mm;size:A4}</style></head><body>'+el.innerHTML+'</body></html>');
+                      w.document.close();
+                      w.focus();
+                      setTimeout(()=>{ w.print(); w.close(); }, 500);
+                    } else { window.print(); }
+                  }}>
                     ⬇ Download PDF
                   </button>
                 )}
               </div>
+              <div id="print-area">
               {generatedData?.type === "invoice" ? (
                 <InvoicePreview inv={inv} items={generatedData.items} logo={invLogo} template={invTemplate} />
               ) : generatedData?.type === "contract" ? (
@@ -1565,6 +1596,7 @@ Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ow
                   <p style={{fontSize:12,color:"var(--ink4)"}}>Fill in the form on the left and click Generate</p>
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>
