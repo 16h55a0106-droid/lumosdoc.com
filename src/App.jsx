@@ -1131,17 +1131,26 @@ export default function App() {
         headers:{"Content-Type":"application/json","Authorization":`Bearer ${import.meta.env.VITE_OPENAI_KEY}`},
         body: JSON.stringify({
           model:"gpt-3.5-turbo", max_tokens:1200,
-          messages:[{role:"user", content:`Write plain English contract clauses for a ${con.type}.
-Freelancer: ${con.freelancerName} | Client: ${con.clientName}
-Project: ${con.projectDesc}
-Timeline: ${con.startDate} to ${con.endDate}
-Payment: ${con.paymentCurrency.split(" ")[1]||"$"}${con.paymentAmount} via ${con.paymentSchedule}
-Revisions: ${con.revisions} rounds
-Type-specific details: ${JSON.stringify(con.extraFields||{})}
-Additional: ${con.additionalInfo||"None"}
-Special instructions: ${CONTRACT_CONFIGS[con.type]?.clauseHints||""}
-${con.type === 'Other / Custom Contract' ? 'IMPORTANT: This is a custom contract. Generate clauses entirely based on the description provided by the user. Make every clause specific to their situation.' : ''}
-Return ONLY a JSON object with keys: scope, deliverables, payment, revisions, ownership, confidentiality, termination, disputes. Each value: 2-3 plain English sentences specific to this type of contract. No legalese. Make clauses genuinely relevant to a ${con.type}.`}]
+          messages:[{role:"user", content:(()=>{
+            const extraFieldLines = Object.entries(con.extraFields||{}).map(([k,v]) => {
+              if (!v) return null;
+              const fieldDef = CONTRACT_CONFIGS[con.type]?.extraFields?.find(f=>f.key===k);
+              return "- " + (fieldDef?.label||k) + ": " + v;
+            }).filter(Boolean).join("\n");
+            const extraSection = extraFieldLines ? "CONTRACT-SPECIFIC DETAILS (USE THESE IN THE CLAUSES):\n" + extraFieldLines : "";
+            const additionalSection = con.additionalInfo ? "ADDITIONAL REQUIREMENTS: " + con.additionalInfo : "";
+            const customNote = con.type === "Other / Custom Contract"
+              ? "IMPORTANT: This is a fully custom contract. Build every clause specifically around the project description and details provided above."
+              : "Make every clause genuinely specific to a " + con.type + ". Reference the actual project details above.";
+            return "You are a professional contract writer. Write plain English contract clauses for a " + con.type + ".\n\n" +
+              "PARTIES:\n- Service Provider: " + con.freelancerName + "\n- Client: " + con.clientName + "\n\n" +
+              "PROJECT DETAILS:\n- Description: " + (con.projectDesc||"As discussed") + "\n- Start: " + con.startDate + "\n- End: " + (con.endDate||"On completion") + "\n- Revisions: " + con.revisions + "\n\n" +
+              "PAYMENT:\n- Amount: " + (con.paymentCurrency.split(" ")[1]||"$") + con.paymentAmount + "\n- Schedule: " + con.paymentSchedule + "\n\n" +
+              (extraSection ? extraSection + "\n\n" : "") +
+              (additionalSection ? additionalSection + "\n\n" : "") +
+              "INSTRUCTIONS: " + (CONTRACT_CONFIGS[con.type]?.clauseHints||"") + "\n" + customNote + "\n\n" +
+              "Return ONLY a valid JSON object with keys: scope, deliverables, payment, revisions, ownership, confidentiality, termination, disputes. Each value: 2-3 plain English sentences. No legalese. Reference the specific project details provided.";
+          })()}]
         })
       });
       const data = await res.json();
