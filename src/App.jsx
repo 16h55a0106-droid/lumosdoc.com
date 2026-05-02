@@ -1130,7 +1130,7 @@ export default function App() {
         method:"POST",
         headers:{"Content-Type":"application/json","Authorization":`Bearer ${import.meta.env.VITE_OPENAI_KEY}`},
         body: JSON.stringify({
-          model:"gpt-3.5-turbo", max_tokens:1200,
+          model:"gpt-4o-mini", max_tokens:1500,
           messages:[{role:"user", content:(()=>{
             const extraFieldLines = Object.entries(con.extraFields||{}).map(([k,v]) => {
               if (!v) return null;
@@ -1154,18 +1154,27 @@ export default function App() {
         })
       });
       const data = await res.json();
+      if (data.error) throw new Error(data.error.message);
       const text = data.choices?.[0]?.message?.content||"{}";
-      newClauses = JSON.parse(text.replace(/```json|```/g,"").trim());
-    } catch {
+      const cleaned = text.replace(/```json|```/g,"").trim();
+      newClauses = JSON.parse(cleaned);
+    } catch(err) {
+      console.error("Contract generation error:", err);
+      const sym = con.paymentCurrency?.split(" ")[1]||"$";
+      const extraInfo = Object.entries(con.extraFields||{}).map(([k,v]) => {
+        if (!v) return null;
+        const fieldDef = CONTRACT_CONFIGS[con.type]?.extraFields?.find(f=>f.key===k);
+        return (fieldDef?.label||k) + ": " + v;
+      }).filter(Boolean).join(". ");
       newClauses = {
-        scope:`The freelancer will provide ${con.projectDesc||"the agreed services"} as outlined.`,
-        deliverables:"All deliverables will be provided in agreed formats upon project completion.",
-        payment:`Total fee is ${con.paymentCurrency.split(" ")[1]||"$"}${con.paymentAmount||"0"}, payable as ${con.paymentSchedule}.`,
-        revisions:`Client is entitled to ${con.revisions} rounds of revisions at no extra charge.`,
-        ownership:"Full ownership transfers to client upon receipt of final payment.",
-        confidentiality:"Both parties agree to keep all project-related information confidential.",
-        termination:"Either party may terminate with 7 days written notice.",
-        disputes:"Any disputes will be resolved through good-faith negotiation.",
+        scope:`The service provider, ${con.freelancerName||"Freelancer"}, agrees to deliver ${con.projectDesc||"the agreed services"} for ${con.clientName||"the Client"} as described in this agreement.${extraInfo ? " " + extraInfo + "." : ""}`,
+        deliverables:`All deliverables for this ${con.type} will be provided in agreed formats by ${con.endDate||"the agreed completion date"}. The service provider will ensure all work meets professional standards before delivery.`,
+        payment:`The total project fee is ${sym}${con.paymentAmount||"0"}, payable via ${con.paymentSchedule}. Late payments beyond 14 days may incur a 2% monthly fee.`,
+        revisions:`The client is entitled to ${con.revisions||"2"} rounds of revisions at no extra charge. Additional revisions beyond this will be quoted separately at the service provider's standard hourly rate.`,
+        ownership:`Full ownership and intellectual property rights of all deliverables transfer to the client upon receipt of final payment in full. Until then, all work remains the property of ${con.freelancerName||"the service provider"}.`,
+        confidentiality:`Both parties agree to keep all project-related information, business processes, and proprietary data strictly confidential during and after this engagement. Neither party will share this information with third parties without prior written consent.`,
+        termination:`Either party may terminate this agreement with 14 days written notice. Work completed up to the termination date will be invoiced and must be paid. Any advance payments for uncompleted work will be refunded on a pro-rata basis.`,
+        disputes:`Any disputes arising from this agreement will first be addressed through good-faith negotiation between both parties. If unresolved within 30 days, the matter will be referred to mediation before any legal action is pursued.`,
       };
     }
     setClauses(newClauses);
