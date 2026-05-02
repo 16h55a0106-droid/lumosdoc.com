@@ -761,7 +761,29 @@ function InvoicePreview({ inv, items, logo }) {
 
 
 // CONTRACT PREVIEW
-function ContractPreview({ con, clauses, logo }) {
+function ContractPreview({ con, clauses, logo, theme }) {
+  const THEMES = {
+    berry:{
+      hBg:"linear-gradient(135deg,#581c87 0%,#7e22ce 50%,#a21caf 100%)",
+      hText:"#fff",hSub:"rgba(255,255,255,0.65)",hBorder:"rgba(255,255,255,0.2)",
+      body:"#fdf4ff",clauseNum:"#9333ea",clauseTitle:"#581c87",
+      divider:"#e9d5ff",partyBg:"#f5f3ff",sigBg:"#fdf4ff",accent:"#c026d3",
+    },
+    ocean:{
+      hBg:"linear-gradient(135deg,#164e63 0%,#0e7490 50%,#0891b2 100%)",
+      hText:"#fff",hSub:"rgba(255,255,255,0.65)",hBorder:"rgba(255,255,255,0.2)",
+      body:"#ecfeff",clauseNum:"#0891b2",clauseTitle:"#164e63",
+      divider:"#a5f3fc",partyBg:"#f0fdff",sigBg:"#ecfeff",accent:"#06b6d4",
+    },
+    sunset:{
+      hBg:"linear-gradient(135deg,#9a3412 0%,#ea580c 50%,#f59e0b 100%)",
+      hText:"#fff",hSub:"rgba(255,255,255,0.65)",hBorder:"rgba(255,255,255,0.2)",
+      body:"#fffbeb",clauseNum:"#ea580c",clauseTitle:"#9a3412",
+      divider:"#fed7aa",partyBg:"#fff7ed",sigBg:"#fff7ed",accent:"#f59e0b",
+    },
+  };
+  const T = THEMES[theme] || THEMES.berry;
+
   const clauseEntries = Object.entries({
     "Scope of Work": clauses.scope,
     "Deliverables": clauses.deliverables,
@@ -769,57 +791,56 @@ function ContractPreview({ con, clauses, logo }) {
     "Revisions": clauses.revisions,
     "Ownership": clauses.ownership,
     "Confidentiality": clauses.confidentiality,
-    "Termination": clauses.termination,
     "Disputes": clauses.disputes,
     ...(con.additionalInfo ? {"Additional Terms": con.additionalInfo} : {}),
   }).filter(([,v]) => v);
 
   return (
-    <div style={{fontFamily:"'Cabinet Grotesk', sans-serif", color:"#1a1a1a", background:"#fdf9f5"}}>
+    <div style={{fontFamily:"'Cabinet Grotesk', sans-serif", color:"#1a1a1a", background:T.body}}>
 
       {/* ── TOP HERO SECTION ── */}
-      <div style={{background:"#f5ede4", padding:"40px 36px 36px"}}>
+      <div style={{background:T.hBg, padding:"40px 36px 36px"}}>
 
         {/* Logo + date row */}
         <div style={{display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:32}}>
           <div>
             {logo
               ? <img src={logo} style={{maxHeight:40, maxWidth:130, objectFit:"contain", display:"block"}} alt="logo" />
-              : <div style={{fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898"}}>{con.freelancerName||"Lumosdoc"}</div>
+              : <div style={{fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:T.hSub}}>{con.freelancerName||"Lumosdoc"}</div>
             }
           </div>
           <div style={{textAlign:"right"}}>
-            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:6}}>Date</div>
-            <div style={{fontSize:13, color:"#1a1a1a", fontWeight:500}}>{con.startDate}</div>
-            {con.endDate && <div style={{fontSize:12, color:"#a89880", marginTop:3}}>Ends {con.endDate}</div>}
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:T.hSub, marginBottom:6}}>Date</div>
+            <div style={{fontSize:13, color:T.hText, fontWeight:500}}>{con.startDate}</div>
+            {con.endDate && <div style={{fontSize:12, color:T.hSub, marginTop:3}}>Ends {con.endDate}</div>}
           </div>
         </div>
 
         {/* LARGE EDITORIAL TITLE */}
-        <div style={{fontFamily:"'Fraunces',serif", fontSize:44, fontWeight:400, color:"#1a1a1a", letterSpacing:"-1.5px", lineHeight:1.08, marginBottom:36, maxWidth:420}}>{con.type}</div>
+        <div style={{fontFamily:"'Fraunces',serif", fontSize:44, fontWeight:400, color:T.hText, letterSpacing:"-1.5px", lineHeight:1.08, marginBottom:36, maxWidth:420}}>{con.type}</div>
 
         {/* PARTIES — 3 column like reference */}
-        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:0, borderTop:"1px solid #e0d4c8", paddingTop:20}}>
-          <div style={{paddingRight:24, borderRight:"1px solid #e0d4c8"}}>
-            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:8}}>Service Provider</div>
-            <div style={{fontSize:15, fontWeight:600, color:"#1a1a1a", marginBottom:4}}>{con.freelancerName||"—"}</div>
-            <div style={{fontSize:12, color:"#888", lineHeight:1.7}}>{con.freelancerEmail}{con.freelancerAddress && <><br/>{con.freelancerAddress}</>}</div>
+        <div style={{display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:0, borderTop:"1px solid " + T.hBorder, paddingTop:20}}>
+          <div style={{paddingRight:24, borderRight:"1px solid " + T.hBorder}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:T.hSub, marginBottom:8}}>Service Provider</div>
+            <div style={{fontSize:15, fontWeight:600, color:T.hText, marginBottom:4}}>{con.freelancerName||"—"}</div>
+            <div style={{fontSize:12, color:T.hSub, lineHeight:1.7}}>{con.freelancerEmail}{con.freelancerAddress && <><br/>{con.freelancerAddress}</>}</div>
           </div>
-          <div style={{paddingLeft:24, paddingRight:24, borderRight:"1px solid #e0d4c8"}}>
-            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:8}}>Client</div>
-            <div style={{fontSize:15, fontWeight:600, color:"#1a1a1a", marginBottom:4}}>{con.clientName||"—"}</div>
-            <div style={{fontSize:12, color:"#888", lineHeight:1.7}}>{con.clientEmail}{con.clientAddress && <><br/>{con.clientAddress}</>}</div>
+          <div style={{paddingLeft:24, paddingRight:24, borderRight:"1px solid " + T.hBorder}}>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:T.hSub, marginBottom:8}}>Client</div>
+            <div style={{fontSize:15, fontWeight:600, color:T.hText, marginBottom:4}}>{con.clientName||"—"}</div>
+            <div style={{fontSize:12, color:T.hSub, lineHeight:1.7}}>{con.clientEmail}{con.clientAddress && <><br/>{con.clientAddress}</>}</div>
           </div>
           <div style={{paddingLeft:24}}>
-            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:"#b8a898", marginBottom:8}}>Project Value</div>
+            <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.12em", color:T.hSub, marginBottom:8}}>Project Value</div>
             {con.paymentAmount
               ? <>
-                  <div style={{fontFamily:"'Fraunces',serif", fontSize:22, fontWeight:400, color:"#1a1a1a", letterSpacing:"-0.5px", marginBottom:4}}>
+                  <div style={{fontFamily:"'Fraunces',serif", fontSize:22, fontWeight:400, color:T.hText, letterSpacing:"-0.5px", marginBottom:4}}>
                     {con.paymentCurrency?.split(" ")[1]||"$"}{con.paymentAmount}
                   </div>
-                  <div style={{fontSize:12, color:"#888"}}>{con.paymentSchedule}</div>
+                  <div style={{fontSize:12, color:T.hSub}}>{con.paymentSchedule}</div>
                 </>
-              : <div style={{fontSize:13, color:"#aaa"}}>—</div>
+              : <div style={{fontSize:13, color:T.hSub}}>—</div>
             }
           </div>
         </div>
@@ -828,11 +849,11 @@ function ContractPreview({ con, clauses, logo }) {
       {/* ── CLAUSES — full width, generous spacing ── */}
       <div style={{padding:"0 36px"}}>
         {clauseEntries.map(([title, text], i) => (
-          <div key={i} style={{padding:"28px 0", borderBottom:"1px solid #ede8e0"}}>
+          <div key={i} style={{padding:"28px 0", borderBottom:"1px solid " + T.divider}}>
             {/* Section header — like reference doc */}
             <div style={{display:"flex", alignItems:"baseline", gap:14, marginBottom:12}}>
-              <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:400, color:"#1a1a1a", letterSpacing:"-0.3px"}}>{title}</div>
-              <div style={{fontSize:10, fontWeight:700, color:"#c8b8a8", letterSpacing:"0.08em"}}>§{String(i+1).padStart(2,"0")}</div>
+              <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:400, color:T.clauseTitle, letterSpacing:"-0.3px"}}>{title}</div>
+              <div style={{fontSize:10, fontWeight:700, color:T.clauseNum, letterSpacing:"0.08em"}}>§{String(i+1).padStart(2,"0")}</div>
             </div>
             {/* Body text — full width, generous line height */}
             <div style={{fontSize:13, color:"#444", lineHeight:1.85, maxWidth:"90%"}}>{text}</div>
@@ -842,7 +863,7 @@ function ContractPreview({ con, clauses, logo }) {
 
       {/* ── SIGNATURES ── */}
       <div style={{padding:"36px 36px 28px"}}>
-        <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:400, color:"#1a1a1a", marginBottom:28, letterSpacing:"-0.3px"}}>Signatures</div>
+        <div style={{fontFamily:"'Fraunces',serif", fontSize:20, fontWeight:400, color:T.clauseTitle, marginBottom:28, letterSpacing:"-0.3px"}}>Signatures</div>
         <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:32}}>
           {[
             {label:"Service Provider / Freelancer", name: con.freelancerName},
@@ -850,15 +871,15 @@ function ContractPreview({ con, clauses, logo }) {
           ].map((s,i) => (
             <div key={i}>
               {/* Signature area */}
-              <div style={{height:64, background:"#f5ede4", borderRadius:8, marginBottom:14, position:"relative", display:"flex", alignItems:"flex-end", padding:"0 12px 10px"}}>
-                <div style={{fontFamily:"'Fraunces',serif", fontSize:13, color:"#c8b8a8", fontStyle:"italic"}}>Sign here</div>
+              <div style={{height:64, background:T.sigBg, borderRadius:8, marginBottom:14, position:"relative", display:"flex", alignItems:"flex-end", padding:"0 12px 10px"}}>
+                <div style={{fontFamily:"'Fraunces',serif", fontSize:13, color:T.accent, fontStyle:"italic", opacity:0.6}}>Sign here</div>
               </div>
               <div style={{display:"grid", gridTemplateColumns:"1fr 1fr", gap:12}}>
-                <div style={{background:"#f5ede4", borderRadius:6, padding:"10px 12px"}}>
-                  <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#b8a898", marginBottom:4}}>{s.label}</div>
+                <div style={{background:T.sigBg, borderRadius:6, padding:"10px 12px"}}>
+                  <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:T.clauseNum, marginBottom:4}}>{s.label}</div>
                   <div style={{fontSize:13, fontWeight:600, color:"#1a1a1a"}}>{s.name||"_______________"}</div>
                 </div>
-                <div style={{background:"#f5ede4", borderRadius:6, padding:"10px 12px"}}>
+                <div style={{background:T.sigBg, borderRadius:6, padding:"10px 12px"}}>
                   <div style={{fontSize:10, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.1em", color:"#b8a898", marginBottom:4}}>Date</div>
                   <div style={{fontSize:13, color:"#888"}}>___________</div>
                 </div>
@@ -869,8 +890,8 @@ function ContractPreview({ con, clauses, logo }) {
       </div>
 
       {/* ── DISCLAIMER — bottom, single line, subtle ── */}
-      <div style={{padding:"12px 36px 16px", borderTop:"1px solid #ede8e0"}}>
-        <div style={{fontSize:10, color:"#c8b8a8", textAlign:"center", letterSpacing:"0.04em"}}>
+      <div style={{padding:"12px 36px 16px", borderTop:"1px solid " + T.divider}}>
+        <div style={{fontSize:10, color:T.clauseNum, textAlign:"center", letterSpacing:"0.04em", opacity:0.5}}>
           AI-generated · Not legal advice · Review with a qualified lawyer before signing · Lumosdoc.com
         </div>
       </div>
@@ -1057,6 +1078,7 @@ export default function App() {
 
   // Contract state
   const [conLogo, setConLogo] = useState(null);
+  const [conTheme, setConTheme] = useState("berry");
 
   const [con, setCon] = useState({
     type:"Freelance Service Agreement",
@@ -1149,7 +1171,7 @@ export default function App() {
               (extraSection ? extraSection + "\n\n" : "") +
               (additionalSection ? additionalSection + "\n\n" : "") +
               "INSTRUCTIONS: " + (CONTRACT_CONFIGS[con.type]?.clauseHints||"") + "\n" + customNote + "\n\n" +
-              "Return ONLY a valid JSON object with keys: scope, deliverables, payment, revisions, ownership, confidentiality, termination, disputes. Each value: 2-3 plain English sentences. No legalese. Reference the specific project details provided.";
+              "Return ONLY a valid JSON object with keys: scope, deliverables, payment, revisions, ownership, confidentiality, disputes. Each value: 2-3 plain English sentences. No legalese. Reference the specific project details provided.";
           })()}]
         })
       });
@@ -1173,7 +1195,6 @@ export default function App() {
         revisions:`The client is entitled to ${con.revisions||"2"} rounds of revisions at no extra charge. Additional revisions beyond this will be quoted separately at the service provider's standard hourly rate.`,
         ownership:`Full ownership and intellectual property rights of all deliverables transfer to the client upon receipt of final payment in full. Until then, all work remains the property of ${con.freelancerName||"the service provider"}.`,
         confidentiality:`Both parties agree to keep all project-related information, business processes, and proprietary data strictly confidential during and after this engagement. Neither party will share this information with third parties without prior written consent.`,
-        termination:`Either party may terminate this agreement with 14 days written notice. Work completed up to the termination date will be invoiced and must be paid. Any advance payments for uncompleted work will be refunded on a pro-rata basis.`,
         disputes:`Any disputes arising from this agreement will first be addressed through good-faith negotiation between both parties. If unresolved within 30 days, the matter will be referred to mediation before any legal action is pursued.`,
       };
     }
@@ -1371,6 +1392,25 @@ export default function App() {
 
 
                 <div className="form-card">
+                  <div className="form-card-title">Colour Theme</div>
+                  <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                    {[
+                      {id:"berry",label:"Berry",bg:"linear-gradient(135deg,#581c87,#a21caf)",desc:"Plum & Magenta"},
+                      {id:"ocean",label:"Ocean",bg:"linear-gradient(135deg,#164e63,#0891b2)",desc:"Teal & Aqua"},
+                      {id:"sunset",label:"Sunset",bg:"linear-gradient(135deg,#9a3412,#f59e0b)",desc:"Coral & Amber"},
+                    ].map(th=>(
+                      <div key={th.id} onClick={()=>setConTheme(th.id)} style={{borderRadius:12,cursor:"pointer",overflow:"hidden",outline:conTheme===th.id?"2.5px solid #1a1a1a":"2px solid transparent",transition:"all 0.15s"}}>
+                        <div style={{height:44,background:th.bg}}/>
+                        <div style={{padding:"8px 10px",background:"var(--surface2)"}}>
+                          <div style={{fontSize:12,fontWeight:600,color:"var(--ink)"}}>{th.label}</div>
+                          <div style={{fontSize:11,color:"var(--ink3)"}}>{th.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-card">
                   <div className="form-card-title">Contract Type</div>
                   <div style={{display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:10}}>
                     {CONTRACT_TYPES.map(t => {
@@ -1487,7 +1527,7 @@ export default function App() {
               {generatedData?.type === "invoice" ? (
                 <InvoicePreview inv={inv} items={generatedData.items} logo={invLogo} />
               ) : generatedData?.type === "contract" ? (
-                <ContractPreview con={con} clauses={generatedData.clauses} logo={conLogo} />
+                <ContractPreview con={con} clauses={generatedData.clauses} logo={conLogo} theme={conTheme} />
               ) : (
                 <div className="preview-empty">
                   <div className="preview-empty-icon">✦</div>
